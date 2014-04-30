@@ -1,0 +1,24 @@
+{
+  "name": "pex-examples",
+  "version": "0.0.1",
+  "description": "Examples for the pex library",
+  "homepage": "https://github.com/vorg/pex-examples",
+  "dependencies": {
+    "merge": "1.1.3"
+  },
+  "devDependencies": {
+    "browserify": "^3.44.2"
+  },
+  "author": {
+    "name": "Marcin Ignac",
+    "email": "marcin.ignac@gmail.com",
+    "url": "http://marcinignac.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vorg/pex-examples.git"
+  },
+  "bugs": "https://github.com/vorg/pex-examples/issues",
+  "homepage": "https://github.com/vorg/pex-examples",
+  "license": "MIT"
+}
