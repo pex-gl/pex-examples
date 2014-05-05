@@ -17,6 +17,7 @@ var EdgeHelper = helpers.EdgeHelper;
 var FaceHelper = helpers.FaceHelper;
 var VertexNormalHelper = helpers.VertexNormalHelper;
 var FaceNormalHelper = helpers.FaceNormalHelper;
+var AxisHelper = helpers.AxisHelper;
 
 sys.Window.create({
   settings: {
@@ -37,6 +38,7 @@ sys.Window.create({
     this.helperMeshes.push(new FaceHelper(sphere));
     this.helperMeshes.push(new VertexNormalHelper(sphere));
     this.helperMeshes.push(new FaceNormalHelper(sphere));
+    this.helperMeshes.push(new AxisHelper(2));
   },
   draw: function() {
     glu.clearColorAndDepth(Color.Black);
