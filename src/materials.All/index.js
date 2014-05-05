@@ -22,6 +22,7 @@ var ShowColors = materials.ShowColors;
 var Textured = materials.Textured;
 var FlatToonShading = materials.FlatToonShading;
 var MatCap = materials.MatCap;
+var ShowDepth = materials.ShowDepth;
 
 var DPI = 2;
 
@@ -55,6 +56,7 @@ Window.create({
     this.meshes.push(new Mesh(sphere, new Textured({ texture: texture2D, scale: new Vec2(5, 5) }), { triangles: true }));
     this.meshes.push(new Mesh(sphere, new FlatToonShading({ colorBands: colorBands }), { triangles: true }));
     this.meshes.push(new Mesh(sphere, new MatCap({ texture: mapCap }), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new ShowDepth({near: 0.5, far: 2}), { triangles: true }));
   },
   draw: function() {
     glu.clearColorAndDepth(Color.Black);
