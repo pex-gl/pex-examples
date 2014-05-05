@@ -1,10 +1,11 @@
 var sys = require('pex-sys');
 var glu = require('pex-glu');
 var geom = require('pex-geom');
+var gen = require('pex-gen');
 var materials = require('pex-materials');
 var color = require('pex-color');
 
-var Cube = geom.gen.Cube;
+var Cube = gen.Cube;
 var Mesh = glu.Mesh;
 var Textured = materials.Textured;
 var PerspectiveCamera = glu.PerspectiveCamera;
