@@ -13,6 +13,7 @@ var Mesh = glu.Mesh;
 var PerspectiveCamera = glu.PerspectiveCamera;
 var Arcball = glu.Arcball;
 var Color = color.Color;
+var Vec2 = geom.Vec2;
 var Vec3 = geom.Vec3;
 var Texture2D = glu.Texture2D;
 var Time = sys.Time;
@@ -34,7 +35,7 @@ Window.create({
     fullscreen: sys.Platform.isBrowser,
     highdpi: DPI
   },
-  color: Color.create(0, 0, 0, 1),
+  color: Color.create(0.2, 0.2, 0.4, 1),
   materials: [],
   materialIndex: 1,
   distance: 2,
@@ -42,6 +43,7 @@ Window.create({
   rotationAxis: Vec3.create(0, 1, 0),
   rotationSpeed: 1,
   rotationAngle: 0,
+  viewport: new Vec2(1, 1),
   init: function() {
     this.gui = new gui.GUI(this);
     this.camera = new PerspectiveCamera(60, this.width / this.height);
@@ -65,12 +67,9 @@ Window.create({
     this.gui.addLabel('');
 
     this.gui.addLabel('CUBE');
-    this.gui.addParam('Scale x', this.mesh.scale, 'x', {min:0, max:1});
-    this.gui.addParam('Scale y', this.mesh.scale, 'y', {min:0, max:1});
-    this.gui.addParam('Scale z', this.mesh.scale, 'z', {min:0, max:1});
-    this.gui.addParam('Color x', this.color, 'r', {min:0, max:1});
-    this.gui.addParam('Color y', this.color, 'g', {min:0, max:1});
-    this.gui.addParam('Color z', this.color, 'b', {min:0, max:1});
+    this.gui.addParam('Viewport', this, 'viewport');
+    this.gui.addParam('Scale', this.mesh, 'scale');
+    this.gui.addParam('Color', this, 'color');
 
     this.gui.addLabel('ROTATION');
     this.gui.addParam('Rotate', this, 'rotate');
@@ -91,6 +90,7 @@ Window.create({
     //this.gui.load('client.gui.settings.txt'); //BUG
 
     var self = this;
+    self.gui.load('client.gui.settings.txt');
     this.on('keyDown', function(e) {
       switch(e.str) {
         case 'S': self.gui.save('client.gui.settings.txt'); break;
@@ -99,12 +99,17 @@ Window.create({
     });
   },
   draw: function() {
-    glu.clearColorAndDepth(this.color);
+    glu.clearColorAndDepth(Color.Black);
     glu.enableDepthReadAndWrite(true, true);
     var gl = glu.Context.currentContext;
 
     this.arcball.distance = this.distance;
     this.arcball.updateCamera();
+
+    var viewportWidth = Math.floor(this.viewport.x * this.width);
+    var viewportHeight = Math.floor(this.viewport.y * this.height);
+
+    glu.viewport((this.width - viewportWidth)/2, (this.height - viewportHeight)/2, viewportWidth, viewportHeight);
 
     if (this.rotate) {
       this.rotationAngle += Time.delta * this.rotationSpeed * 10;
@@ -122,7 +127,10 @@ Window.create({
       glu.enableBlending(false);
     }
 
+    glu.clearColorAndDepth(this.color);
     this.mesh.draw(this.camera);
+
+    glu.viewport(0, 0, this.width, this.height);
     this.gui.draw();
   }
 });

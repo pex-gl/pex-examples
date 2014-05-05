@@ -1,0 +1,1 @@
+{"GUI Test":"","S - save settings":"","L - load settings":"","":"","CUBE":"","Viewport":{"x":1,"y":1},"Scale":{"x":0.4074421672077922,"y":0.837890625,"z":0.6598265016233766},"Color":{"r":0.30660511363636356,"g":0.4,"b":0.20000000000000007,"a":1},"ROTATION":"","Rotate":false,"Rotate speed":1,"CAMERA":"","Distance":1.194450081168831,"MATERIAL":2}
