@@ -77,5 +77,6 @@ Window.create({
         }
       }
     }
+    glu.viewport(0, 0, this.width, this.height);
   }
 });
