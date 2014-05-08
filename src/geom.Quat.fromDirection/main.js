@@ -23,6 +23,12 @@ sys.Window.create({
   },
   init: function() {
     var cube = new Cube(0.2, 0.2, 1);
+    cube.vertices.forEach(function(v) {
+      if (v.z > 0) {
+        v.y = 0;
+        v.x = 0;
+      }
+    })
     this.pointerMesh = new Mesh(cube, new Diffuse( { ambientColor: Color.DarkGrey }));
 
     var sphere = new Sphere(0.2);
@@ -41,6 +47,8 @@ sys.Window.create({
     );
     this.pointerMesh.rotation = Quat.fromDirection(this.targetMesh.position);
     this.pointerMesh.draw(this.camera);
+    //this.arcball.setOrientation(this.targetMesh.position);
+    //this.arcball.setDistance(0.8)
     this.targetMesh.draw(this.camera);
   }
 });
