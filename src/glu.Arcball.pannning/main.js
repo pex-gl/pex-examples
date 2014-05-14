@@ -18,6 +18,7 @@ var Color = color.Color;
 var AxisHelper = helpers.AxisHelper;
 var Vec3 = geom.Vec3;
 var Plane = geom.Plane;
+var Ray = geom.Ray;
 
 sys.Window.create({
   settings: {
@@ -45,6 +46,7 @@ sys.Window.create({
 
     this.on('leftMouseDown', function(e) {
       this.showDragPos = true;
+      this.updatePlane();
     }.bind(this));
 
     this.on('mouseDragged', function(e) {
@@ -57,6 +59,7 @@ sys.Window.create({
 
     this.on('leftMouseUp', function(e) {
       this.showDragPos = false;
+      this.updatePlane();
     }.bind(this));
   },
   updatePlane: function() {
@@ -64,25 +67,36 @@ sys.Window.create({
     var invViewMatrix = viewMatrix.dup().invert();
     var target = this.camera.getTarget().dup().add(new Vec3(0.01, 0.01, 0.01));
     var targetInCameraSpace = target.dup().transformMat4(viewMatrix);
-    this.plane = new Plane(targetInCameraSpace, new Vec3(0, 0, -1));
+    this.plane = this.arcball.panPlane
 
     this.planeLines.reset();
-    var points = [
-      new Vec3(-1, -1, 0).add(targetInCameraSpace),
-      new Vec3( 1, -1, 0).add(targetInCameraSpace),
-      new Vec3( 1,  1, 0).add(targetInCameraSpace),
-      new Vec3(-1,  1, 0).add(targetInCameraSpace)
-    ];
-    var pointsInWorldSpace = points.map(function(p) {
-      return p.dup().transformMat4(invViewMatrix);
-    }.bind(this));
-    pointsInWorldSpace.forEach(function(p, pi) {
-      this.planeLines.addCross(p);
-      this.planeLines.addLine(p, pointsInWorldSpace[(pi + 1) % pointsInWorldSpace.length]);
-    }.bind(this));
 
+    if (this.plane) {
+      var points = [
+        new Vec3(-1, -1, 0).add(targetInCameraSpace),
+        new Vec3( 1, -1, 0).add(targetInCameraSpace),
+        new Vec3( 1,  1, 0).add(targetInCameraSpace),
+        new Vec3(-1,  1, 0).add(targetInCameraSpace)
+      ];
+      var pointsInWorldSpace = points.map(function(p) {
+        return p.dup().transformMat4(invViewMatrix);
+      }.bind(this));
+      pointsInWorldSpace.forEach(function(p, pi) {
+        this.planeLines.addCross(p);
+        this.planeLines.addLine(p, pointsInWorldSpace[(pi + 1) % pointsInWorldSpace.length]);
+      }.bind(this));
+
+      var from = this.arcball.clickPosViewSpace.dup().transformMat4(invViewMatrix);
+      var to = this.arcball.dragPosViewSpace.dup().transformMat4(invViewMatrix);
+      var fromPlane = this.arcball.clickPosPlane.dup().transformMat4(invViewMatrix);
+      var toPlane = this.arcball.dragPosPlane.dup().transformMat4(invViewMatrix);
+      this.planeLines.addCross(from, 0.01, Color.Orange);
+      this.planeLines.addCross(to, 0.01, Color.Orange);
+      this.planeLines.addLine(from, to, Color.Orange);
+      this.planeLines.addCross(fromPlane, 1, Color.Green);
+      this.planeLines.addCross(toPlane, 1, Color.Green);
+    }
     this.planeLines.addCross(target, 0.5, Color.Yellow);
-    //console.log(pointsInWorldSpace.map(function(p) { return p.toString(); }));
     this.planeLines.vertices.dirty = true;
   },
   draw: function() {
