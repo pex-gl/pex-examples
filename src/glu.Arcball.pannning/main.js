@@ -86,15 +86,12 @@ sys.Window.create({
         this.planeLines.addLine(p, pointsInWorldSpace[(pi + 1) % pointsInWorldSpace.length]);
       }.bind(this));
 
-      var from = this.arcball.clickPosViewSpace.dup().transformMat4(invViewMatrix);
-      var to = this.arcball.dragPosViewSpace.dup().transformMat4(invViewMatrix);
       var fromPlane = this.arcball.clickPosPlane.dup().transformMat4(invViewMatrix);
       var toPlane = this.arcball.dragPosPlane.dup().transformMat4(invViewMatrix);
-      this.planeLines.addCross(from, 0.01, Color.Orange);
-      this.planeLines.addCross(to, 0.01, Color.Orange);
-      this.planeLines.addLine(from, to, Color.Orange);
+
       this.planeLines.addCross(fromPlane, 1, Color.Green);
       this.planeLines.addCross(toPlane, 1, Color.Green);
+      this.planeLines.addLine(fromPlane, toPlane, Color.Orange);
     }
     this.planeLines.addCross(target, 0.5, Color.Yellow);
     this.planeLines.vertices.dirty = true;
