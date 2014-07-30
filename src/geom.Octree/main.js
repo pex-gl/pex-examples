@@ -6,8 +6,8 @@ var gen = require('pex-gen');
 var geom = require('pex-geom');
 var helpers = require('pex-helpers');
 
+var Octree = geom.Octree;
 var OctreeHelper = helpers.OctreeHelper;
-
 var Cube = gen.Cube;
 var Vec3 = geom.Vec3;
 var Mesh = glu.Mesh;
@@ -31,8 +31,8 @@ sys.Window.create({
 
     this.camera = new PerspectiveCamera(60, this.width / this.height);
     this.arcball = new Arcball(this, this.camera, 5);
-    this.arcball.setTarget(new Vec3(1, 1, 0))
-    this.arcball.setPosition(new Vec3(1, 1, 3))
+    this.arcball.setTarget(new Vec3(1, 1, 0));
+    this.arcball.setPosition(new Vec3(1, 1, 4));
 
     this.octree = new Octree(new Vec3(0, 0, 0), new Vec3(2, 2, 2));
     this.points = [];
