@@ -37,11 +37,10 @@ sys.Window.create({
     this.octree = new Octree(new Vec3(0, 0, 0), new Vec3(2, 2, 2));
     this.points = [];
 
-    //this.testRandom(this.octree);
     this.testNearest(this.octree);
 
     this.pointInstances = this.points.map(function(p) {
-      return { position: p, uniforms: { color: Color.Red } };
+      return { position: p, uniforms: { color: Color.White } };
     })
 
     this.octreeHelper0 = new OctreeHelper(this.octree, Color.Green, 0);
@@ -63,15 +62,7 @@ sys.Window.create({
       }
     }.bind(this))
   },
-  testRandom: function(octree) {
-    var n = 10;
 
-    for(var i=0; i<n; i++) {
-      var p = geom.randomVec3(1).add(new Vec3(1, 1, 1)); //move the points to (0,0,0),(2,2,2) box
-      this.points.push(p);
-      octree.add(p);
-    }
-  },
   testNearest: function(octree) {
     var n = 100;
 
@@ -82,19 +73,8 @@ sys.Window.create({
       this.points.push(p);
     }
 
-    //this.points.push(new Vec3(0, 0, 0));
-    //this.points.push(new Vec3(1, 0, 0));
-    //this.points.push(new Vec3(0, 1, 0));
-    //this.points.push(new Vec3(0, 0, 1));
-    //this.points.push(new Vec3(1, 0, 1));
-    //this.points.push(new Vec3(1, 1, 0));
-    //this.points.push(new Vec3(0, 1, 1));
-    //this.points.push(new Vec3(1, 1, 1));
-    //this.points.push(new Vec3(0.5, 0.5, 0.5));
-    //this.points.push(new Vec3(0.75, 0.75, 0.75));
-
     this.points.forEach(function(p) {
-      octree.add(p);
+      octree.add(p, Color.fromHSL(Math.random(), 1, 0.5));
     })
 
     console.log('this.nearestPoint', this.nearestPoint)
@@ -109,18 +89,14 @@ sys.Window.create({
     this.pointMesh.drawInstances(this.camera, this.pointInstances);
 
     if (!this.once) {
-      //this.targetPoint = new Vec3(
-      //  1 + 0.9 * Math.cos(1 * Time.seconds),
-      //  1, //1 + 0.9 * Math.sin(1 * Time.seconds*1.5), //for easier debugging
-      //  1 - 0.9 * Math.cos(1 * Time.seconds*0.2)
-      //);
       this.targetPoint = new Vec3(1-0.51, 1, 1 + 0.49); //tricky edge case
       this.once = true;
     }
 
-    this.nearestPoint = this.octree.findNearestPoint(this.targetPoint);
+    var nearestResult = this.octree.findNearestPoint(this.targetPoint, { includeData: true });
+    this.nearestPoint = nearestResult.point;
 
-    if (this.targetPoint) this.pointMesh.drawInstances(this.camera, [ { position: this.targetPoint, uniforms: { color: Color.Yellow } }]);
-    if (this.nearestPoint) this.pointMesh.drawInstances(this.camera, [ { position: this.nearestPoint, uniforms: { color: Color.Green }, scale: new Vec3(1.1, 1.1, 1.1) }]);
+    if (this.targetPoint) this.pointMesh.drawInstances(this.camera, [ { position: this.targetPoint, uniforms: { color: nearestResult.data } }]);
+    if (this.nearestPoint) this.pointMesh.drawInstances(this.camera, [ { position: this.nearestPoint, uniforms: { color: nearestResult.data  }, scale: new Vec3(1.1, 1.1, 1.1) }]);
   }
 });
