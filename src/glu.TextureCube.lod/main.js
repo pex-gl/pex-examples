@@ -29,62 +29,15 @@ sys.Window.create({
     this.gui = new GUI(this);
     this.gui.addParam('LOD', this, 'lod', { min: 0, max: 8 });
 
-    var cubeMapFiles = [
-      '../../assets/cubemaps/uffizi_lod/uffizi_m00_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m00_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m00_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m00_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m00_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m00_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m01_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m01_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m01_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m01_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m01_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m01_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m02_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m02_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m02_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m02_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m02_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m02_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m03_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m03_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m03_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m03_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m03_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m03_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m04_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m04_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m04_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m04_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m04_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m04_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m05_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m05_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m05_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m05_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m05_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m05_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m06_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m06_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m06_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m06_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m06_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m06_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m07_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m07_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m07_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m07_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m07_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m07_c05.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m08_c00.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m08_c01.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m08_c02.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m08_c03.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m08_c04.png',
-      '../../assets/cubemaps/uffizi_lod/uffizi_m08_c05.png'
-    ];
+    var levels = ['m00', 'm01', 'm02', 'm03', 'm04', 'm05', 'm06', 'm07', 'm08'];
+    var sides = ['c00', 'c01', 'c02', 'c03', 'c04', 'c05'];
+
+    var cubeMapFiles = [];
+    levels.forEach(function(level) {
+      sides.forEach(function(side) {
+        cubeMapFiles.push('../../assets/cubemaps/uffizi_lod/uffizi_' + level + '_' + side + '.png');
+      });
+    });
 
     var cubeMap = TextureCube.load(cubeMapFiles, { mipmap : true });
     this.mesh = new Mesh(new Sphere(), new TexturedCubeMap({ texture: cubeMap }));
