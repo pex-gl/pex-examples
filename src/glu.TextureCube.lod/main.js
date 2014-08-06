@@ -24,7 +24,7 @@ sys.Window.create({
     type: '3d',
     fullscreen: sys.Platform.isBrowser
   },
-  lod: 0,
+  lod: 4,
   init: function() {
     this.gui = new GUI(this);
     this.gui.addParam('LOD', this, 'lod', { min: 0, max: 8 });
@@ -39,7 +39,7 @@ sys.Window.create({
       });
     });
 
-    var cubeMap = TextureCube.load(cubeMapFiles, { mipmap : true });
+    var cubeMap = TextureCube.load(cubeMapFiles);
     this.mesh = new Mesh(new Sphere(), new TexturedCubeMap({ texture: cubeMap }));
     this.cubeMesh = new Mesh(new Cube(50), new SkyBox({ texture: cubeMap }));
 
