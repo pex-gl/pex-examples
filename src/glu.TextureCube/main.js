@@ -24,12 +24,12 @@ sys.Window.create({
   },
   init: function() {
     var cubeMapFiles = [
-      '../../assets/textures/uffizi_cross_posx.jpg',
-      '../../assets/textures/uffizi_cross_negx.jpg',
-      '../../assets/textures/uffizi_cross_posy.jpg',
-      '../../assets/textures/uffizi_cross_negy.jpg',
-      '../../assets/textures/uffizi_cross_posz.jpg',
-      '../../assets/textures/uffizi_cross_negz.jpg'
+      '../../assets/cubemaps/uffizi/uffizi_cross_posx.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negx.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_posy.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negy.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_posz.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negz.jpg'
     ];
     var cubeMap = TextureCube.load(cubeMapFiles);
     this.mesh = new Mesh(new Sphere(), new TexturedCubeMap({ texture: cubeMap }));

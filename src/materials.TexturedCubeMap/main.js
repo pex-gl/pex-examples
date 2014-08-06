@@ -23,9 +23,17 @@ sys.Window.create({
     fullscreen: sys.Platform.isBrowser
   },
   init: function() {
-    var cubeMap = TextureCube.load('../../assets/textures/uffizi_cross_####.jpg');
-    this.sphereMesh = new Mesh(new Sphere(), new TexturedCubeMap({ texture: cubeMap }));
-    this.cubeMesh = new Mesh(new Cube(5), new SkyBox({ texture: cubeMap }));
+    var cubeMapFiles = [
+      '../../assets/cubemaps/uffizi/uffizi_cross_posx.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negx.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_posy.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negy.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_posz.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negz.jpg'
+    ];
+    var cubeMap = TextureCube.load(cubeMapFiles);
+    this.mesh = new Mesh(new Sphere(), new TexturedCubeMap({ texture: cubeMap }));
+    this.cubeMesh = new Mesh(new Cube(50), new SkyBox({ texture: cubeMap }));
 
     this.camera = new PerspectiveCamera(60, this.width / this.height);
     this.arcball = new Arcball(this, this.camera);
@@ -34,6 +42,6 @@ sys.Window.create({
     glu.clearColorAndDepth(Color.Black);
     glu.enableDepthReadAndWrite(true);
     this.cubeMesh.draw(this.camera);
-    this.sphereMesh.draw(this.camera);
+    this.mesh.draw(this.camera);
   }
 });
