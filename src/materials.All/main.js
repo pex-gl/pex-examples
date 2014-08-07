@@ -4,10 +4,12 @@ var geom = require('pex-geom');
 var gen = require('pex-gen');
 var color = require('pex-color');
 var materials = require('pex-materials');
+var GeometrySubdivide = require('./Geometry.Subdivide');
 
 var Window = sys.Window;
 var Sphere = gen.Sphere;
 var Cube = gen.Cube;
+var Box = gen.Box;
 var Mesh = glu.Mesh;
 var PerspectiveCamera = glu.PerspectiveCamera;
 var Arcball = glu.Arcball;
@@ -15,14 +17,17 @@ var Color = color.Color;
 var Vec3 = geom.Vec3;
 var Vec2 = geom.Vec2;
 var Texture2D = glu.Texture2D;
+var TextureCube = glu.TextureCube;
 
 var ShowNormals = materials.ShowNormals;
 var SolidColor = materials.SolidColor;
 var ShowColors = materials.ShowColors;
-var Textured = materials.Textured;
+var TexturedTriPlanar = materials.TexturedTriPlanar;
 var FlatToonShading = materials.FlatToonShading;
 var MatCap = materials.MatCap;
 var ShowDepth = materials.ShowDepth;
+var Diffuse = materials.Diffuse;
+var TexturedCubeMap = materials.TexturedCubeMap;
 
 var DPI = 2;
 
@@ -41,28 +46,53 @@ Window.create({
     this.meshes = [];
 
     var sphere = new Sphere(0.75);
+    sphere = new Box();
+    sphere = sphere.catmullClark();
+    sphere = sphere.extrude(0.4);
+    sphere = sphere.catmullClark().catmullClark();
+    sphere.computeNormals();
+    var sphereFlat = sphere.toFlatGeometry();
+    sphereFlat.computeNormals();
     var colors = sphere.vertices.map(function() {
       return new Color(Math.random(), Math.random(), Math.random(), 1.0);
     })
     sphere.addAttrib('colors', 'color', colors);
 
+    var cubeMapFiles = [
+      '../../assets/cubemaps/uffizi/uffizi_cross_posx.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negx.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_posy.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negy.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_posz.jpg',
+      '../../assets/cubemaps/uffizi/uffizi_cross_negz.jpg'
+    ];
+
     var texture2D = Texture2D.load('../../assets/textures/plask.png', { repeat: true, mipmap: true });
     var colorBands = Texture2D.load('../../assets/textures/palette_green.png');
-    var mapCap = Texture2D.load('../../assets/textures/matcap.jpg');
+    var mapCap1 = Texture2D.load('../../assets/textures/matcap.jpg');
+    var mapCap2 = Texture2D.load('../../assets/textures/generator_w.jpg');
+    var mapCap3 = Texture2D.load('../../assets/textures/green_glass_860.jpg');
+    var mapCap4 = Texture2D.load('../../assets/textures/generator_11.jpg');
+    var cubeMap = TextureCube.load(cubeMapFiles);
 
     this.meshes.push(new Mesh(sphere, new SolidColor({ color: Color.Red }), { triangles: true }));
     this.meshes.push(new Mesh(sphere, new ShowNormals(), { triangles: true }));
     this.meshes.push(new Mesh(sphere, new ShowColors(), { triangles: true }));
-    this.meshes.push(new Mesh(sphere, new Textured({ texture: texture2D, scale: new Vec2(5, 5) }), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new TexturedTriPlanar({ texture: texture2D, scale: 2 }), { triangles: true }));
     this.meshes.push(new Mesh(sphere, new FlatToonShading({ colorBands: colorBands }), { triangles: true }));
-    this.meshes.push(new Mesh(sphere, new MatCap({ texture: mapCap }), { triangles: true }));
     this.meshes.push(new Mesh(sphere, new ShowDepth({near: 0.5, far: 2}), { triangles: true }));
+    this.meshes.push(new Mesh(sphereFlat, new Diffuse({near: 0.5, far: 2}), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new TexturedCubeMap({ texture: cubeMap }), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new MatCap({ texture: mapCap1 }), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new MatCap({ texture: mapCap2 }), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new MatCap({ texture: mapCap3 }), { triangles: true }));
+    this.meshes.push(new Mesh(sphere, new MatCap({ texture: mapCap4 }), { triangles: true }));
   },
   draw: function() {
     glu.clearColorAndDepth(Color.Black);
     glu.enableDepthReadAndWrite(true);
 
-    var cols = 3;
+    var cols = 4;
     var rows = 3;
     var index = 0;
     var dw = 1/cols * this.width;
