@@ -40,6 +40,7 @@ sys.Window.create({
     });
 
     var cubeMap = TextureCube.load(cubeMapFiles, { mipmap: true });
+
     this.mesh = new Mesh(new Sphere(), new TexturedCubeMap({ texture: cubeMap }));
     this.cubeMesh = new Mesh(new Cube(50), new SkyBox({ texture: cubeMap }));
 
@@ -47,6 +48,8 @@ sys.Window.create({
     this.arcball = new Arcball(this, this.camera);
   },
   draw: function() {
+    if (!this.mesh.material.uniforms.texture.ready) return;
+
     glu.clearColorAndDepth(Color.Black);
     glu.enableDepthReadAndWrite(true);
     this.cubeMesh.material.uniforms.lod = this.lod;
