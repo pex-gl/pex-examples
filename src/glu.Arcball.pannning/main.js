@@ -61,6 +61,16 @@ sys.Window.create({
       this.showDragPos = false;
       this.updatePlane();
     }.bind(this));
+
+    this.on('keyDown', function(e) {
+      switch (e.str) {
+        case ' ':
+          this.arcball.setTarget(new Vec3(0, 0, 0));
+          this.arcball.setPosition(new Vec3(3, 3, 3));
+          this.updatePlane();
+          break;
+      }
+    }.bind(this));
   },
   updatePlane: function() {
     var viewMatrix = this.camera.getViewMatrix();
