@@ -64,6 +64,9 @@ sys.Window.create({
       new Vec3( 0.1,  0.4, 0),
       new Vec3(-0.1,  0.4, 0)
     ]);
+    points.forEach(function(p) {
+      p.z = 0;
+    })
     var spline = new Spline3D(points, true);
 
     this.gui = new GUI(this);
