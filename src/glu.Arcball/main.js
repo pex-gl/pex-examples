@@ -39,7 +39,6 @@ sys.Window.create({
 
     this.debugCamera = new PerspectiveCamera(60, 1);
     this.debugCamera.setPosition(new Vec3(0, 1, 3));
-    console.log(this.debugCamera.getPosition());
 
     this.cameraMesh = new Mesh(new Cube(0.1, 0.1, 0.2), new Diffuse());
 
@@ -81,17 +80,12 @@ sys.Window.create({
     this.mesh.draw(this.camera);
 
     glu.viewport(this.width/2, 0, this.width/2, this.height);
-    glu.clearColorAndDepth(Color.Grey);
     this.debugAxisHelper.draw(this.debugCamera);
     this.mesh.scale.set(0.5, 0.5, 0.5);
     this.mesh.draw(this.debugCamera);
 
     this.pointerMesh.material.uniforms.diffuseColor = Color.White;
     this.pointerMesh.rotation.setDirection(this.camera.getPosition());
-    this.pointerMesh.draw(this.debugCamera);
-
-    this.pointerMesh.material.uniforms.diffuseColor = Color.Red;
-    this.pointerMesh.rotation.setQuat(this.arcball.currRot);
     this.pointerMesh.draw(this.debugCamera);
 
     this.cameraMesh.rotation.setDirection(this.camera.getPosition().dup().normalize());
