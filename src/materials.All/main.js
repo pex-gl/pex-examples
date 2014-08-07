@@ -4,7 +4,6 @@ var geom = require('pex-geom');
 var gen = require('pex-gen');
 var color = require('pex-color');
 var materials = require('pex-materials');
-var GeometrySubdivide = require('./Geometry.Subdivide');
 
 var Window = sys.Window;
 var Sphere = gen.Sphere;
@@ -69,10 +68,11 @@ Window.create({
 
     var texture2D = Texture2D.load('../../assets/textures/plask.png', { repeat: true, mipmap: true });
     var colorBands = Texture2D.load('../../assets/textures/palette_green.png');
-    var mapCap1 = Texture2D.load('../../assets/textures/matcap.jpg');
-    var mapCap2 = Texture2D.load('../../assets/textures/generator_w.jpg');
-    var mapCap3 = Texture2D.load('../../assets/textures/green_glass_860.jpg');
-    var mapCap4 = Texture2D.load('../../assets/textures/generator_11.jpg');
+    var mapCap1 = Texture2D.load('../../assets/textures/matcaps/MatcapBronze.jpg');
+    var mapCap2 = Texture2D.load('../../assets/textures/matcaps/generator11.jpg');
+    var mapCap3 = Texture2D.load('../../assets/textures/matcaps/plastic_red.jpg');
+    var mapCap4 = Texture2D.load('../../assets/textures/matcaps/green_glass_860.png');
+
     var cubeMap = TextureCube.load(cubeMapFiles);
 
     this.meshes.push(new Mesh(sphere, new SolidColor({ color: Color.Red }), { triangles: true }));
