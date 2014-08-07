@@ -14,10 +14,6 @@ function remap(value, oldMin, oldMax, newMin, newMax) {
   return newMin + (value - oldMin) / (oldMax - oldMin) * (newMax - newMin);
 }
 
-function divideBy(f) {
-  return 
-}
-
 sys.Window.create({
   settings: {
     width: 1280,
@@ -27,7 +23,6 @@ sys.Window.create({
   init: function() {
   },
   drawRect: function(x, y, w, h, color) {
-    
   },
   draw: function() {
     var canvas = this.canvas;
@@ -45,7 +40,7 @@ sys.Window.create({
     var windowWidth = this.width;
     var rectWidth = (windowWidth - margin*2) / numSteps;
     var rectHeight =  50;
-    
+
     var rgbColors = range(0, numSteps).map(function(i) { return Color.lerp(startColor, endColor, i/(numSteps-1), 'rgb'); });
     var hsvColors = range(0, numSteps).map(function(i) { return Color.lerp(startColor, endColor, i/(numSteps-1), 'hsv'); });
     var hslColors = range(0, numSteps).map(function(i) { return Color.lerp(startColor, endColor, i/(numSteps-1), 'hsl'); });
@@ -67,19 +62,19 @@ sys.Window.create({
 
     canvas.translate(0, margin);
     drawRects(rgbColors);
-    
+
     canvas.translate(0, margin + rectHeight);
     drawRects(hsvColors);
-    
+
     canvas.translate(0, margin + rectHeight);
     drawRects(hslColors);
 
     canvas.translate(0, margin + rectHeight);
     drawRects(rgbColors2);
-    
+
     canvas.translate(0, margin + rectHeight);
     drawRects(hsvColors2);
-    
+
     canvas.translate(0, margin + rectHeight);
     drawRects(hslColors2);
 
