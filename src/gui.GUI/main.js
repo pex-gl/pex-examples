@@ -76,6 +76,8 @@ Window.create({
     this.gui.addParam('Rotate speed', this, 'rotationSpeed', {min:0, max:5});
     this.gui.addLabel('CAMERA');
     this.gui.addParam('Distance', this, 'distance', {min:0.5, max:5});
+    this.gui.addTexture2D('Texture', this.texture);
+
     //this.gui.addTexture2D('Texture', this.texture);
     var radioList = this.gui.addRadioList('MATERIAL', this, 'materialIndex', [
       { name: 'None', value: 0 },
