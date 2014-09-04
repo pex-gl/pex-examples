@@ -8,6 +8,7 @@ var geom = require('pex-geom');
 var Plane = gen.Plane;
 var Cube = gen.Cube;
 var Sphere = gen.Sphere;
+var Cylinder = gen.Cylinder;
 var Tetrahedron = gen.Tetrahedron;
 var Octahedron = gen.Octahedron;
 var Icosahedron = gen.Icosahedron;
@@ -31,6 +32,7 @@ sys.Window.create({
     var shapes = [
       new Plane(), new Plane(1,1,3,3),
       new Cube(), new Cube(1,1,1,3,3,3),
+      new Cylinder(),
       new Tetrahedron(),
       new Octahedron(),
       new Icosahedron(),
@@ -42,7 +44,7 @@ sys.Window.create({
     var objects = [];
 
     var numRows = 3;
-    var shapesPerRow = 4;
+    var shapesPerRow = 5;
 
     var W = this.width;
     var H = this.height;
