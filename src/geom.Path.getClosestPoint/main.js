@@ -9,7 +9,8 @@ var Color = color.Color;
 
 sys.Window.create({
   settings: {
-    type: '2d3d'
+    type: '2d3d',
+    fullscreen: sys.Platform.isBrowser
   },
   mousePos: new Vec3(0, 0, 0),
   init: function() {

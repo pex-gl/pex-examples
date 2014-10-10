@@ -21,7 +21,8 @@ sys.Window.create({
   settings: {
     width: 1280,
     height: 720,
-    type: '3d'
+    type: '3d',
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
     this.camera = new PerspectiveCamera(60, this.width/this.height, 0.1, 10);

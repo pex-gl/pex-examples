@@ -34,6 +34,7 @@ sys.Window.create({
     width: 1250,
     height: 750,
     type: '3d',
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
     this.gui = new GUI(this);

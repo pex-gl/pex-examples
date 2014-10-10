@@ -24,7 +24,7 @@ sys.Window.create({
     width: 1280,
     height: 720,
     type: '3d',
-    fullscreen: Platform.isBrowser ? true : false
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
     this.pointMesh = new Mesh(new Cube(0.05), new SolidColor({ color: Color.Red }));
