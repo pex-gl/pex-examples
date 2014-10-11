@@ -62,6 +62,7 @@ Window.create({
     this.mesh = new glu.Mesh(new Cube(), this.materials[1]);
 
     this.gui.addLabel('GUI Test');
+    this.gui.addLabel('g - toggle gui on/off');
     this.gui.addLabel('S - save settings');
     this.gui.addLabel('L - load settings');
     this.gui.addLabel('');
@@ -95,6 +96,7 @@ Window.create({
     self.gui.load('client.gui.settings.txt');
     this.on('keyDown', function(e) {
       switch(e.str) {
+        case 'g': self.gui.toggleEnabled();
         case 'S': self.gui.save('client.gui.settings.txt'); break;
         case 'L': self.gui.load('client.gui.settings.txt'); break;
       }
