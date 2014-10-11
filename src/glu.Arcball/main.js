@@ -23,7 +23,8 @@ sys.Window.create({
   settings: {
     width: 1024,
     height: 512,
-    type: '3d'
+    type: '3d',
+    fullscreen: sys.Platform.isBrowser
   },
   showDragPos: false,
   init: function() {

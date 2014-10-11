@@ -7,7 +7,8 @@ Window.create({
   settings: {
     width: 1024,
     height: 550,
-    type: '2d'
+    type: '2d',
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
 

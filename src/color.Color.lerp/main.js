@@ -18,7 +18,8 @@ sys.Window.create({
   settings: {
     width: 1280,
     height: 720,
-    type: '2d'
+    type: '2d',
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
   },
