@@ -27,7 +27,7 @@ sys.Window.create({
   },
   init: function() {
     var cube = new Box(0.5);
-    var cubeSub = cube.wire(0.1);
+    var cubeSub = cube.wire(0.1, 0.01);
     var cubeSubSub = cube.wire(0.1).wire(0.01).triangulate();
 
     this.scene = [];
