@@ -48,7 +48,7 @@ Window.create({
     var iso = this.iso = new IsoSurface(20, 1);
     var isoGeom = iso.update(spheres);
 
-    var matCap = Texture2D.load('../../assets/textures/matcap.jpg');
+    var matCap = Texture2D.load('../../assets/textures/matcaps/plastic_red.jpg');
 
     this.meshes.push(new Mesh(isoGeom, new MatCap({ texture: matCap }), { triangles: true }));
 
