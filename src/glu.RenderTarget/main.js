@@ -20,7 +20,8 @@ sys.Window.create({
   settings: {
     width: 1024,
     height: 512,
-    type: '3d'
+    type: '3d',
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
     var cube = new Cube(0.5);
