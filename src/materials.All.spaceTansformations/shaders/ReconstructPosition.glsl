@@ -62,8 +62,8 @@ vec3 getViewRay(vec2 tc) {
 //http://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/
 //assumes z = eye space z
 vec3 reconstructPositionFromDepth(vec2 texCoord, float z) {
-  vec3 ray = getViewRay(texCoord);
-  vec3 pos = ray * far;
+  vec3 ray = getFarViewDir(texCoord);
+  vec3 pos = ray;
   return pos * z / far;
 }
 
