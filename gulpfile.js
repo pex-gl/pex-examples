@@ -90,30 +90,34 @@ var mkdir = function(dir, callback) {
 gulp.task("browserify", [ "file-structure" ], function(callback) {
 	var limit = 4;
 
-	fs.readdir("./src/", function(error, directories) {
-		if (error) { return console.error(error); }
+	var srcPath = "./src/";
 
-		async.eachLimit(
-			directories,
-			limit,
-			function(dir, callback) {
-				fs.stat("./src/" + dir, function(error, stat) {
-					if (error) { return callback(error); }
-					if (!stat.isDirectory()) { return callback(); }
+	var dirs = listSubDirs(srcPath);
 
-					async.series(
-						[
-							mkdir.bind(this, "./dist/examples/" + dir),
-							exampleHtml.bind(this, dir),
-							runBrowserify.bind(this, dir)
-						],
-						callback
-					);
-				});
-			},
-			callback
-		);
-	});
+	if (gulp.env.dir) {
+		dirs = [ gulp.env.dir ];
+	}
+
+	async.eachLimit(
+		dirs,
+		limit,
+		function(dir, callback) {
+			fs.stat("./src/" + dir, function(error, stat) {
+				if (error) { return callback(error); }
+				if (!stat.isDirectory()) { return callback(); }
+
+				async.series(
+					[
+						mkdir.bind(this, "./dist/examples/" + dir),
+						exampleHtml.bind(this, dir),
+						runBrowserify.bind(this, dir)
+					],
+					callback
+				);
+			});
+		},
+		callback
+	);
 });
 
 gulp.task("file-structure", function(callback) {
