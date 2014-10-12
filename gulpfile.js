@@ -11,6 +11,7 @@ var rename = require("gulp-rename");
 var slimerPath = require("slimerjs").path;
 var source = require("vinyl-source-stream");
 var spawn = require("child_process").spawn;
+var path = require('path');
 
 var log = function() {
 	var time = "[" + chalk.blue(dateformat(new Date(), "HH:MM:ss")) + "]";
@@ -18,6 +19,17 @@ var log = function() {
 	args.unshift(time);
 	console.log.apply(console, args);
 };
+
+var listSubDirs = function(parentDir) {
+	var dirs = fs.readdirSync(parentDir);
+	dirs = dirs.filter(function(dir) {
+		var stat = fs.statSync(path.join(parentDir, dir));
+		if (!stat) return false;
+		if (!stat.isDirectory) return false;
+		return true;
+	});
+	return dirs;
+}
 
 var runBrowserify = function(dir, callback) {
 	var src = "./src/" + dir;
@@ -117,102 +129,41 @@ gulp.task("file-structure", function(callback) {
 	);
 });
 
-var startHttpServer = function(dir, callback) {
-	var server = httpServer.createServer({ root: dir });
-	server.listen(3000, function(err) {
-		callback(err, dir, server);
-	});
-};
-
-var slimerScreenshot = function(dir, serverInstance, callback) {
-	var serverAddress = serverInstance.server.address();
-	var url = "http://" + serverAddress.address + ":" + serverAddress.port;
-	var thumbPath = dir + "/thumb.jpg";
-  var spawned = spawn(slimerPath, [ "./utils/slimer-script.js", url, thumbPath ]);
+var slimerScreenshot = function(url, thumbPath, callback) {
+	var spawned = spawn(slimerPath, [ "./utils/slimer-script.js", url, thumbPath ]);
 
 	spawned.stdout.on("data", function(data) {
-		log("slimer " + chalk.cyan(dir) + "\n" + data.toString());
+		log("slimer " + chalk.cyan(url) + "\n" + data.toString());
   });
 
-  spawned.on("exit", function(err) {
-  	callback(err, dir, serverInstance);
-  });
+  spawned.on("exit", callback);
 };
 
-
-/*
-
 gulp.task("make-screenshots", function(callback) {
-	fs.readdir("./dist/examples/", function(error, directories) {
-		if (error) { return console.error(error); }
+	var examplesPath = "./dist/examples";
+	var port = 3000;
 
+	var dirs = listSubDirs(examplesPath);
+
+	var server = httpServer.createServer({ root: "./dist/" });
+	server.listen(port, function(err) {
+		makeScreenshots();
+	});
+
+	function makeScreenshots() {
 		async.eachSeries(
-			directories,
-
+			dirs,
 			function(dir, callback) {
-				fs.stat("./dist/examples/" + dir, function(error, stat) {
-					if (error) { return callback(error); }
-					if (!stat.isDirectory()) { return callback(); }
-
-					var server = null;
-					dir = "./dist/examples/" + dir;
-
-					async.series(
-						[
-							function(callback) {
-								startHttpServer(dir, function(instance) {
-									server = instance;
-									callback();
-								});
-							},
-
-							slimerScreenshot.bind(this, dir),
-							moveScreenshot.bind(this, dir)
-						],
-						function() {
-							server.close();
-							callback();
-						}
-					);
-				});
+				var url = "http://localhost:" + port + "/examples/" + dir + "/";
+				var thumbPath = path.join(examplesPath, dir, "thumb.jpg");
+				slimerScreenshot(url, thumbPath, callback)
 			},
-
-			callback
+			function() {
+				server.close();
+				callback();
+			}
 		);
-	});
-});
-*/
-
-gulp.task("make-screenshots", function(callback) {
-	var dirs = fs.readdirSync("./dist/examples/");
-
-	dirs = dirs.map(function(dir) {
-		return "./dist/examples/" + dir;
-	});
-
-	dirs = dirs.filter(function(dir) {
-		var stat = fs.statSync(dir);
-		if (!stat) return false;
-		if (!stat.isDirectory) return false;
-		return true;
-	});
-
-	async.eachSeries(
-		dirs,
-		function(dir, callback) {
-			async.waterfall(
-				[
-					startHttpServer.bind(this, dir),
-					slimerScreenshot
-				],
-				function(err, dir, serverInstance) {
-					serverInstance.close();
-					callback();
-				}
-			);
-		},
-		callback
-	);
+	}
 });
 
 
