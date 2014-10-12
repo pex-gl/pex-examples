@@ -125,7 +125,7 @@ gulp.task("file-structure", function(callback) {
 	log(chalk.cyan("file structure") + " building");
 
 	async.each(
-		[ "./dist/examples", "./dist/assets" ],
+		[ "./dist/examples", "./dist/assets", "./dist/fonts" ],
 		mkdir,
 		function() {
 			gulp
@@ -182,8 +182,14 @@ gulp.task("make-screenshots", function(callback) {
 	}
 });
 
+gulp.task("copy-fonts", function(callback) {
+	gulp
+		.src("templates/fonts/*.{ttf,txt}")
+		.pipe(gulp.dest("./dist/fonts/"))
+		.on("finish", callback);
+});
 
-gulp.task("build-index", function(callback) {
+gulp.task("build-index", ["copy-fonts"], function(callback) {
 	var src = "./templates/index.ejs";
 	var dest = "./dist/";
 
