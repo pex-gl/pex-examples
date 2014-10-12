@@ -15,6 +15,7 @@
     "pex-helpers": "0.0.2",
     "pex-materials": "0.0.7",
     "pex-sys": "0.0.4",
+    "portfinder": "^0.2.1",
     "slimerjs": "^0.9.2"
   },
   "devDependencies": {

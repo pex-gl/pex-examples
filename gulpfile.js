@@ -14,6 +14,7 @@ var buffer = require('vinyl-buffer');
 var spawn = require("child_process").spawn;
 var path = require('path');
 var uglify = require('gulp-uglify');
+var portfinder = require('portfinder');
 
 var log = function() {
 	var time = "[" + chalk.blue(dateformat(new Date(), "HH:MM:ss")) + "]";
@@ -145,7 +146,6 @@ var slimerScreenshot = function(url, thumbPath, callback) {
 
 gulp.task("make-screenshots", function(callback) {
 	var examplesPath = "./dist/examples";
-	var port = 3000;
 
 	var dirs = listSubDirs(examplesPath);
 
@@ -153,16 +153,18 @@ gulp.task("make-screenshots", function(callback) {
 		dirs = [ gulp.env.dir ];
 	}
 
-	var server = httpServer.createServer({ root: "./dist/" });
-	server.listen(port, function(err) {
-		makeScreenshots();
-	});
+	portfinder.getPort(function (err, port) {
+    var server = httpServer.createServer({ root: "./dist/" });
+		server.listen(port, function(err) {
+			makeScreenshots("http://localhost:" + port);
+		});
+  });
 
-	function makeScreenshots() {
+	function makeScreenshots(host) {
 		async.eachSeries(
 			dirs,
 			function(dir, callback) {
-				var url = "http://localhost:" + port + "/examples/" + dir + "/";
+				var url = host + "/examples/" + dir + "/";
 				var thumbPath = path.join(examplesPath, dir, "thumb.jpg");
 				slimerScreenshot(url, thumbPath, callback)
 			},
