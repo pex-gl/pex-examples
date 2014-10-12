@@ -77,7 +77,7 @@ gulp.task("browserify", [ "file-structure" ], function(callback) {
 		if (error) { return console.error(error); }
 
 		async.eachLimit(
-			directories.splice(3,2),
+			directories,
 			limit,
 			function(dir, callback) {
 				fs.stat("./src/" + dir, function(error, stat) {
@@ -176,4 +176,43 @@ gulp.task("make-screenshots", function(callback) {
 	});
 });
 
-gulp.task("dist", [ "file-structure", "browserify" ]);
+gulp.task("build-index", function(callback) {
+	var src = "./templates/index.ejs";
+	var dest = "./dist/";
+
+	fs.readdir("./dist/examples/", function(error, directories) {
+		if (error) { return console.error(error); }
+
+		async.filter(
+			directories,
+
+			function(dir, callback) {
+				fs.stat("./dist/examples/" + dir, function(error, stat) {
+					if (error) { return callback(error); }
+					callback(stat.isDirectory());
+				});
+			},
+
+			function(examples) {
+				gulp
+					.src(src)
+					.pipe(ejs({ examples: examples }))
+					.pipe(gulp.dest(dest))
+					.on("finish", callback);
+			}
+		);
+	});
+});
+
+gulp.task("dist", function() {
+	async.eachSeries(
+		[
+			"browserify",
+			"make-screenshots",
+			"build-index"
+		],
+		function(task, callback) {
+			gulp.run(task, callback);
+		}
+	);
+});
