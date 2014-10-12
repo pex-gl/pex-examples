@@ -24,14 +24,15 @@ void main() {
 
 varying vec2 vTexCoord;
 uniform sampler2D depthBuf;
+uniform sampler2D positionBuf;
 uniform float fov;
 uniform float near;
 uniform float far;
 uniform float aspectRatio;
+uniform mat4 invViewMatrix;
 
 const float PI = 3.14159265358979323846;
 
-//fron depth buf normalized z to linear (eye space) z
 //http://stackoverflow.com/questions/6652253/getting-the-true-z-value-from-the-depth-buffer
 float ndcDepthToEyeSpace(float ndcDepth) {
   return 2.0 * near * far / (far + near - ndcDepth * (far - near));
@@ -68,13 +69,12 @@ vec3 reconstructPositionFromDepth(vec2 texCoord, float z) {
 }
 
 void main() {
-  //gl_FragColor = texture2D(image, vTexCoord);
-  //gl_FragColor.a *= alpha;
-
   float depth = readDepth(depthBuf, vTexCoord);
+  vec3 position = texture2D(positionBuf, vTexCoord).xyz;
   vec3 reconstructedPosition = reconstructPositionFromDepth(vTexCoord, depth);
+  vec4 reconstructedWorldPosition = invViewMatrix * vec4(reconstructedPosition, 1.0);
 
-  gl_FragColor = vec4(reconstructedPosition, 1.0);
+  gl_FragColor = vec4(reconstructedWorldPosition.xyz - position, 1.0);
 }
 
 #endif

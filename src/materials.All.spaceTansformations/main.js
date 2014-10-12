@@ -24,6 +24,8 @@ var Vec3 = geom.Vec3;
 var GUI = gui.GUI;
 var Program = glu.Program;
 
+var ShowWorldPosition = require('./materials/ShowWorldPosition');
+
 var ViewSize = 250;
 var rtWidth = 512;
 var rtHeight = 512;
@@ -219,12 +221,85 @@ sys.Window.create({
       }.bind(this);
     }.bind(this))();
 
-    this.drawToShowNormals = (function() {
-      this.gui.addLabel('ShowNormals').setPosition(5 + 3 * ViewSize, 5);
-      var showNormals = new ShowNormals();
+    this.drawToShowWorldPosition = (function() {
+      this.gui.addLabel('ShowWorldPosition').setPosition(5 + 3 * ViewSize, 5);
+      var showWorldPosition = new ShowWorldPosition();
       var colorTex = Texture2D.create(rtWidth, rtHeight, { format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE });
       var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: true });
       var screenImage = new ScreenImage(colorTex, 3 * ViewSize, 0, ViewSize, ViewSize, this.width, this.height);
+      return function() {
+        glu.viewport(0, 0, renderTarget.width, renderTarget.height);
+        renderTarget.bind();
+        glu.clearColorAndDepth(Color.Black);
+        this.drawScene(showWorldPosition);
+        renderTarget.unbind();
+        glu.viewport(0, 0, this.width, this.height);
+        screenImage.draw();
+      }.bind(this);
+    }.bind(this))();
+
+    this.drawToReconstructWorldPosition = (function() {
+      this.gui.addLabel('ReconstructWorldPosition').setPosition(5 + 3 * ViewSize, 5 + 1 * ViewSize);
+      var showPosition = new ShowWorldPosition();
+      var colorTex = Texture2D.create(rtWidth, rtHeight, { format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE });
+      var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
+      var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
+      var screenImage = new ScreenImage(colorTex, 3 * ViewSize, ViewSize, ViewSize, ViewSize, this.width, this.height);
+      var resonstructPosition = Program.load('./shaders/ReconstructWorldPosition.glsl');
+      return function() {
+        glu.viewport(0, 0, renderTarget.width, renderTarget.height);
+        renderTarget.bind();
+        glu.clearColorAndDepth(Color.Black);
+        this.drawScene(showPosition);
+        renderTarget.unbind();
+        glu.viewport(0, 0, this.width, this.height);
+        depthBuf.bind(0);
+        resonstructPosition.use();
+        resonstructPosition.uniforms.depthBuf(0);
+        resonstructPosition.uniforms.near(this.camera.getNear());
+        resonstructPosition.uniforms.far(this.camera.getFar());
+        resonstructPosition.uniforms.fov(this.camera.getFov());
+        resonstructPosition.uniforms.aspectRatio(this.camera.getAspectRatio());
+        resonstructPosition.uniforms.invViewMatrix(this.camera.getViewMatrix().dup().invert());
+        screenImage.draw(null, resonstructPosition);
+      }.bind(this);
+    }.bind(this))();
+
+    this.drawToReconstructWorldPositionCompare = (function() {
+      this.gui.addLabel('ReconstructWorldPositionCompare').setPosition(5 + 3 * ViewSize, 5 + 2 * ViewSize);
+      var showPosition = new ShowWorldPosition();
+      var colorTex = Texture2D.create(rtWidth, rtHeight, { bpp: 32 });
+      var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
+      var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
+      var screenImage = new ScreenImage(colorTex, 3 * ViewSize, 2 * ViewSize, ViewSize, ViewSize, this.width, this.height);
+      var resonstructPosition = Program.load('./shaders/ReconstructWorldPositionCompare.glsl');
+      return function() {
+        glu.viewport(0, 0, renderTarget.width, renderTarget.height);
+        renderTarget.bind();
+        glu.clearColorAndDepth(Color.Black);
+        this.drawScene(showPosition);
+        renderTarget.unbind();
+        glu.viewport(0, 0, this.width, this.height);
+        depthBuf.bind(0);
+        colorTex.bind(1);
+        resonstructPosition.use();
+        resonstructPosition.uniforms.depthBuf(0);
+        resonstructPosition.uniforms.positionBuf(1);
+        resonstructPosition.uniforms.near(this.camera.getNear());
+        resonstructPosition.uniforms.far(this.camera.getFar());
+        resonstructPosition.uniforms.fov(this.camera.getFov());
+        resonstructPosition.uniforms.aspectRatio(this.camera.getAspectRatio());
+        resonstructPosition.uniforms.invViewMatrix(this.camera.getViewMatrix().dup().invert());
+        screenImage.draw(null, resonstructPosition);
+      }.bind(this);
+    }.bind(this))();
+
+    this.drawToShowNormals = (function() {
+      this.gui.addLabel('ShowNormals').setPosition(5 + 4 * ViewSize, 5);
+      var showNormals = new ShowNormals();
+      var colorTex = Texture2D.create(rtWidth, rtHeight, { format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE });
+      var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: true });
+      var screenImage = new ScreenImage(colorTex, 4 * ViewSize, 0, ViewSize, ViewSize, this.width, this.height);
       return function() {
         glu.viewport(0, 0, renderTarget.width, renderTarget.height);
         renderTarget.bind();
@@ -237,6 +312,7 @@ sys.Window.create({
     }.bind(this))();
   },
   drawScene: function(material) {
+    glu.enableDepthReadAndWrite(true, true);
     this.scene.forEach(function(mesh) {
       if (material) {
         var oldMaterial = mesh.getMaterial();
@@ -263,6 +339,9 @@ sys.Window.create({
     this.drawToShowPosition();
     this.drawToReconstructPosition();
     this.drawToReconstructPositionCompare();
+    this.drawToShowWorldPosition();
+    this.drawToReconstructWorldPosition();
+    this.drawToReconstructWorldPositionCompare();
     this.drawToShowNormals();
 
     glu.viewport(0, 0, this.width, this.height);

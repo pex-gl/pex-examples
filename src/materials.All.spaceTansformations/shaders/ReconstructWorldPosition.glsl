@@ -24,10 +24,12 @@ void main() {
 
 varying vec2 vTexCoord;
 uniform sampler2D depthBuf;
+uniform sampler2D positionBuf;
 uniform float fov;
 uniform float near;
 uniform float far;
 uniform float aspectRatio;
+uniform mat4 invViewMatrix;
 
 const float PI = 3.14159265358979323846;
 
@@ -68,13 +70,12 @@ vec3 reconstructPositionFromDepth(vec2 texCoord, float z) {
 }
 
 void main() {
-  //gl_FragColor = texture2D(image, vTexCoord);
-  //gl_FragColor.a *= alpha;
-
   float depth = readDepth(depthBuf, vTexCoord);
   vec3 reconstructedPosition = reconstructPositionFromDepth(vTexCoord, depth);
+  vec4 reconstructedWorldPosition = invViewMatrix * vec4(reconstructedPosition, 1.0);
+  reconstructedWorldPosition.xyz /= reconstructedWorldPosition.w;
 
-  gl_FragColor = vec4(reconstructedPosition, 1.0);
+  gl_FragColor = vec4(reconstructedWorldPosition.xyz, 1.0);
 }
 
 #endif
