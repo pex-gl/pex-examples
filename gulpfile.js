@@ -121,7 +121,7 @@ var slimerScreenshot = function(dir, callback) {
 	var spawned = spawn(slimerPath, [ "./utils/slimer-script.js", dir + "/thumb.png" ]);
 
 	spawned.stdout.on("data", function(data) {
-		log("slimer " + chalk.cyan(dir) + data.toString());
+		log("slimer " + chalk.cyan(dir) + "\n" + data.toString());
 	});
 
 	spawned.on("exit", callback);
