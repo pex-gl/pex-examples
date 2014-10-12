@@ -156,11 +156,12 @@ gulp.task("make-screenshots", function(callback) {
 	portfinder.getPort(function (err, port) {
     var server = httpServer.createServer({ root: "./dist/" });
 		server.listen(port, function(err) {
-			makeScreenshots("http://localhost:" + port);
+			makeScreenshots(server);
 		});
   });
 
-	function makeScreenshots(host) {
+	function makeScreenshots(serverInstance) {
+		var host = "http://localhost:" + serverInstance.server.address().port;
 		async.eachSeries(
 			dirs,
 			function(dir, callback) {
@@ -169,7 +170,7 @@ gulp.task("make-screenshots", function(callback) {
 				slimerScreenshot(url, thumbPath, callback)
 			},
 			function() {
-				server.close();
+				serverInstance.close();
 				callback();
 			}
 		);
