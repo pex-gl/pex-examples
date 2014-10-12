@@ -24,6 +24,9 @@
     "dateformat": "^1.0.8",
     "gulp": "^3.8.8",
     "gulp-chmod": "^1.1.1",
+    "gulp-ejs": "^0.3.1",
+    "gulp-rename": "^1.2.0",
+    "http-server": "^0.7.2",
     "vinyl-source-stream": "^1.0.0"
   },
   "author": {

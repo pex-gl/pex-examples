@@ -3,8 +3,12 @@ var browserify = require("browserify");
 var chalk = require("chalk");
 var chmod = require("gulp-chmod");
 var dateformat = require("dateformat");
+var ejs = require("gulp-ejs");
 var fs = require("fs");
 var gulp = require("gulp");
+var httpServer = require("http-server");
+var rename = require("gulp-rename");
+var slimerPath = require("slimerjs").path;
 var source = require("vinyl-source-stream");
 var spawn = require("child_process").spawn;
 
@@ -51,11 +55,15 @@ var runBrowserify = function(dir, callback) {
 		});
 };
 
-var copyHtml = function(dir) {
-	var src = "./templates/index.html";
-	var dest = "./dist/" + dir;
+var exampleHtml = function(dir, callback) {
+	var src = "./templates/example.ejs";
+	var dest = "./dist/examples/" + dir;
 
-	gulp.src(src).pipe(gulp.dest(dest));
+	gulp.src(src)
+		.pipe(ejs({ title: dir }))
+		.pipe(rename("index.html"))
+		.pipe(gulp.dest(dest))
+		.on("finish", callback);
 };
 
 var mkdir = function(dir, callback) {
@@ -69,35 +77,31 @@ gulp.task("browserify", [ "file-structure" ], function(callback) {
 		if (error) { return console.error(error); }
 
 		async.eachLimit(
-			directories,
-
+			directories.splice(3,2),
 			limit,
-
 			function(dir, callback) {
 				fs.stat("./src/" + dir, function(error, stat) {
 					if (error) { return callback(error); }
+					if (!stat.isDirectory()) { return callback(); }
 
-					if (stat.isDirectory()) {
-						mkdir("./dist/examples/" + dir, function() {
-							runBrowserify(dir, callback);
-							// copyHtml(dir);
-							// copyAssets(dir);
-						});
-					}
-					else {
-						callback();
-					}
+					async.series(
+						[
+							mkdir.bind(this, "./dist/examples/" + dir),
+							exampleHtml.bind(this, dir),
+							runBrowserify.bind(this, dir)
+						],
+						callback
+					);
 				});
 			},
-
-			function() {
-				callback();
-			}
+			callback
 		);
 	});
 });
 
 gulp.task("file-structure", function(callback) {
+	log(chalk.cyan("file structure") + " building");
+
 	async.each(
 		[ "./dist/examples", "./dist/assets" ],
 		mkdir,
@@ -106,10 +110,70 @@ gulp.task("file-structure", function(callback) {
 				.src("./assets/**")
 				.pipe(gulp.dest("./dist/assets/"))
 				.on("finish", function() {
+					log(chalk.cyan("file structure") + " done");
 					callback();
 				});
 		}
 	);
 });
 
-gulp.task("dist", [ "browserify" ]);
+var slimerScreenshot = function(dir, callback) {
+	var spawned = spawn(slimerPath, [ "./utils/slimer-script.js", dir + "/thumb.png" ]);
+
+	spawned.stdout.on("data", function(data) {
+		log("slimer " + chalk.cyan(dir) + data.toString());
+	});
+
+	spawned.on("exit", callback);
+};
+
+var startHttpServer = function(dir, callback) {
+	var server = httpServer.createServer({ root: dir });
+	server.listen(3000, callback.bind(this, server));
+};
+
+var moveScreenshot = function(dir, callback) {
+	spawn("mv", [ __dirname + "/page.png", dir + "/thumb.png" ]).on("exit", callback);
+};
+
+gulp.task("make-screenshots", function(callback) {
+	fs.readdir("./dist/examples/", function(error, directories) {
+		if (error) { return console.error(error); }
+
+		async.eachSeries(
+			directories,
+
+			function(dir, callback) {
+				fs.stat("./dist/examples/" + dir, function(error, stat) {
+					if (error) { return callback(error); }
+					if (!stat.isDirectory()) { return callback(); }
+
+					var server = null;
+					dir = __dirname + "/dist/examples/" + dir;
+
+					async.series(
+						[
+							function(callback) {
+								startHttpServer(dir, function(instance) {
+									server = instance;
+									callback();
+								});
+							},
+
+							slimerScreenshot.bind(this, dir),
+							moveScreenshot.bind(this, dir)
+						],
+						function() {
+							server.close();
+							callback();
+						}
+					);
+				});
+			},
+
+			callback
+		);
+	});
+});
+
+gulp.task("dist", [ "file-structure", "browserify" ]);
