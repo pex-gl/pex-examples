@@ -118,7 +118,7 @@ gulp.task("file-structure", function(callback) {
 });
 
 var slimerScreenshot = function(dir, callback) {
-	var spawned = spawn(slimerPath, [ "./utils/slimer-script.js", dir + "/thumb.png" ]);
+	var spawned = spawn(slimerPath, [ "./utils/slimer-script.js" ]);
 
 	spawned.stdout.on("data", function(data) {
 		log("slimer " + chalk.cyan(dir) + "\n" + data.toString());
@@ -149,7 +149,7 @@ gulp.task("make-screenshots", function(callback) {
 					if (!stat.isDirectory()) { return callback(); }
 
 					var server = null;
-					dir = __dirname + "/dist/examples/" + dir;
+					dir = "./dist/examples/" + dir;
 
 					async.series(
 						[
