@@ -11,11 +11,23 @@
     "pex-geom": "^0.5.0",
     "pex-glu": "0.0.9",
     "pex-gui": "^0.2.0",
+    "pex-helpers": "0.0.2",
     "pex-materials": "0.0.7",
     "pex-sys": "0.0.4"
   },
   "devDependencies": {
-    "browserify": "^3.44.2"
+    "async": "^0.9.0",
+    "brfs": "^1.2.0",
+    "browserify": "^3.44.2",
+    "chalk": "^0.5.1",
+    "chmod": "^0.2.1",
+    "dateformat": "^1.0.8",
+    "gulp": "^3.8.8",
+    "gulp-chmod": "^1.1.1",
+    "gulp-ejs": "^0.3.1",
+    "gulp-rename": "^1.2.0",
+    "http-server": "^0.7.2",
+    "vinyl-source-stream": "^1.0.0"
   },
   "author": {
     "name": "Marcin Ignac",
@@ -27,6 +39,5 @@
     "url": "https://github.com/vorg/pex-examples.git"
   },
   "bugs": "https://github.com/vorg/pex-examples/issues",
-  "homepage": "https://github.com/vorg/pex-examples",
   "license": "MIT"
 }
