@@ -4,6 +4,7 @@
   "description": "Examples for the pex library",
   "homepage": "https://github.com/vorg/pex-examples",
   "dependencies": {
+    "gulp-uglify": "^1.0.1",
     "merge": "1.1.3",
     "pex-color": "^0.1.0",
     "pex-fx": "0.0.5",
@@ -28,6 +29,7 @@
     "gulp-ejs": "^0.3.1",
     "gulp-rename": "^1.2.0",
     "http-server": "^0.7.2",
+    "vinyl-buffer": "^1.0.0",
     "vinyl-source-stream": "^1.0.0"
   },
   "author": {

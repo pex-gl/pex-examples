@@ -10,8 +10,10 @@ var httpServer = require("http-server");
 var rename = require("gulp-rename");
 var slimerPath = require("slimerjs").path;
 var source = require("vinyl-source-stream");
+var buffer = require('vinyl-buffer');
 var spawn = require("child_process").spawn;
 var path = require('path');
+var uglify = require('gulp-uglify');
 
 var log = function() {
 	var time = "[" + chalk.blue(dateformat(new Date(), "HH:MM:ss")) + "]";
@@ -60,6 +62,8 @@ var runBrowserify = function(dir, callback) {
 		.bundle()
 		.pipe(source("main.min.js"))
 		.pipe(chmod(644))
+		.pipe(buffer())
+		.pipe(uglify())
 		.pipe(gulp.dest(dest))
 		.on("finish", function() {
 			log("browserify " + chalk.cyan(dir) + " finished!");
