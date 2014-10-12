@@ -15,6 +15,7 @@ var spawn = require("child_process").spawn;
 var path = require('path');
 var uglify = require('gulp-uglify');
 var portfinder = require('portfinder');
+var argv = require('yargs').argv;
 
 var log = function() {
 	var time = "[" + chalk.blue(dateformat(new Date(), "HH:MM:ss")) + "]";
@@ -94,8 +95,8 @@ gulp.task("browserify", [ "file-structure" ], function(callback) {
 
 	var dirs = listSubDirs(srcPath);
 
-	if (gulp.env.dir) {
-		dirs = [ gulp.env.dir ];
+	if (argv.dir) {
+		dirs = [ argv.dir ];
 	}
 
 	async.eachLimit(
@@ -153,8 +154,8 @@ gulp.task("make-screenshots", function(callback) {
 
 	var dirs = listSubDirs(examplesPath);
 
-	if (gulp.env.dir) {
-		dirs = [ gulp.env.dir ];
+	if (argv.dir) {
+		dirs = [ argv.dir ];
 	}
 
 	portfinder.getPort(function (err, port) {
