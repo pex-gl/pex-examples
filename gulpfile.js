@@ -145,6 +145,10 @@ gulp.task("make-screenshots", function(callback) {
 
 	var dirs = listSubDirs(examplesPath);
 
+	if (gulp.env.dir) {
+		dirs = [ gulp.env.dir ];
+	}
+
 	var server = httpServer.createServer({ root: "./dist/" });
 	server.listen(port, function(err) {
 		makeScreenshots();
