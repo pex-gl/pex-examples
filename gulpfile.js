@@ -117,24 +117,30 @@ gulp.task("file-structure", function(callback) {
 	);
 });
 
-var slimerScreenshot = function(dir, callback) {
-	var spawned = spawn(slimerPath, [ "./utils/slimer-script.js" ]);
+var startHttpServer = function(dir, callback) {
+	var server = httpServer.createServer({ root: dir });
+	server.listen(3000, function(err) {
+		callback(err, dir, server);
+	});
+};
+
+var slimerScreenshot = function(dir, serverInstance, callback) {
+	var serverAddress = serverInstance.server.address();
+	var url = "http://" + serverAddress.address + ":" + serverAddress.port;
+	var thumbPath = dir + "/thumb.jpg";
+  var spawned = spawn(slimerPath, [ "./utils/slimer-script.js", url, thumbPath ]);
 
 	spawned.stdout.on("data", function(data) {
 		log("slimer " + chalk.cyan(dir) + "\n" + data.toString());
-	});
+  });
 
-	spawned.on("exit", callback);
+  spawned.on("exit", function(err) {
+  	callback(err, dir, serverInstance);
+  });
 };
 
-var startHttpServer = function(dir, callback) {
-	var server = httpServer.createServer({ root: dir });
-	server.listen(3000, callback.bind(this, server));
-};
 
-var moveScreenshot = function(dir, callback) {
-	spawn("mv", [ __dirname + "/page.png", dir + "/thumb.png" ]).on("exit", callback);
-};
+/*
 
 gulp.task("make-screenshots", function(callback) {
 	fs.readdir("./dist/examples/", function(error, directories) {
@@ -175,6 +181,40 @@ gulp.task("make-screenshots", function(callback) {
 		);
 	});
 });
+*/
+
+gulp.task("make-screenshots", function(callback) {
+	var dirs = fs.readdirSync("./dist/examples/");
+
+	dirs = dirs.map(function(dir) {
+		return "./dist/examples/" + dir;
+	});
+
+	dirs = dirs.filter(function(dir) {
+		var stat = fs.statSync(dir);
+		if (!stat) return false;
+		if (!stat.isDirectory) return false;
+		return true;
+	});
+
+	async.eachSeries(
+		dirs,
+		function(dir, callback) {
+			async.waterfall(
+				[
+					startHttpServer.bind(this, dir),
+					slimerScreenshot
+				],
+				function(err, dir, serverInstance) {
+					serverInstance.close();
+					callback();
+				}
+			);
+		},
+		callback
+	);
+});
+
 
 gulp.task("build-index", function(callback) {
 	var src = "./templates/index.ejs";
