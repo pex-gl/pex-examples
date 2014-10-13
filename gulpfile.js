@@ -6,6 +6,7 @@ var dateformat = require("dateformat");
 var ejs = require("gulp-ejs");
 var fs = require("fs");
 var gulp = require("gulp");
+var gulpif = require('gulp-if');
 var httpServer = require("http-server");
 var rename = require("gulp-rename");
 var slimerPath = require("slimerjs").path;
@@ -64,8 +65,8 @@ var runBrowserify = function(dir, callback) {
 		.bundle()
 		.pipe(source("main.min.js"))
 		.pipe(chmod(644))
-		.pipe(buffer())
-		.pipe(uglify())
+		.pipe(gulpif(argv.uglify, buffer()))
+		.pipe(gulpif(argv.uglify, uglify()))
 		.pipe(gulp.dest(dest))
 		.on("finish", function() {
 			log("browserify " + chalk.cyan(dir) + " finished!");
