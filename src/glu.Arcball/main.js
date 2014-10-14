@@ -31,14 +31,15 @@ sys.Window.create({
     var cube = new Cube(1);
     this.mesh = new Mesh(cube, new ShowNormals());
 
-    this.camera = new PerspectiveCamera(60, 1);
+    var aspectRatio = (this.width/2)/this.height;
+    this.camera = new PerspectiveCamera(60, aspectRatio);
     this.arcball = new Arcball(this, this.camera, 5);
     this.arcball.setPosition(new Vec3(5, 5, 5));
 
     this.axisHelper = new AxisHelper(2);
     this.debugAxisHelper = new AxisHelper(1);
 
-    this.debugCamera = new PerspectiveCamera(60, 1);
+    this.debugCamera = new PerspectiveCamera(60, aspectRatio);
     this.debugCamera.setPosition(new Vec3(0, 1, 3));
 
     this.cameraMesh = new Mesh(new Cube(0.1, 0.1, 0.2), new Diffuse());
