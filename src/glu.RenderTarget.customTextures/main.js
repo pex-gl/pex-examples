@@ -34,8 +34,8 @@ sys.Window.create({
     this.meshFront = new Mesh(cube, new Diffuse( { diffuseColor: Color.Blue, ambientColor: Color.DarkGrey }));
     this.meshFront.position = new Vec3(0, 0, 1);
 
-    var rtWidth = this.height;
-    var rtHeight = this.height;
+    var rtWidth = Math.min(this.height, this.width/2);
+    var rtHeight = Math.min(this.height, this.width/2);
 
     //create textures for offscreen rendering
     var colorBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE });
