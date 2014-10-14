@@ -33,8 +33,13 @@ sys.Window.create({
     this.meshFront = new Mesh(cube, new Diffuse( { diffuseColor: Color.Blue, ambientColor: Color.DarkGrey }));
     this.meshFront.position = new Vec3(0, 0, 1);
 
-    var rtWidth = 512;
-    var rtHeight = 512;
+    var nextPowOf2 = Math.pow(2, Math.ceil(Math.log(this.width)/Math.log(2)));
+
+    if (nextPowOf2 / 2 * 1.5 > this.width) nextPowOf2 /= 2;
+
+    var rtWidth = nextPowOf2 / 2;
+    var rtHeight = nextPowOf2 / 2;
+
     this.renderTarget = new RenderTarget(rtWidth, rtHeight, { depth: true });
     var colorBuf = this.renderTarget.getColorAttachment(0);
 
