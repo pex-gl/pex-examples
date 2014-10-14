@@ -22,15 +22,12 @@ var SolidColor = materials.SolidColor;
 var FlatToonShading = materials.FlatToonShading;
 var MatCap = materials.MatCap;
 
-var DPI = 2;
-
 Window.create({
   settings: {
-    width: 1024 * DPI,
-    height: 768 * DPI,
+    width: 1024,
+    height: 768,
     type: '3d',
-    fullscreen: sys.Platform.isBrowser,
-    highdpi: DPI
+    fullscreen: sys.Platform.isBrowser
   },
   init: function() {
     this.camera = new PerspectiveCamera(60, this.width / this.height);
@@ -45,7 +42,7 @@ Window.create({
       { position: new Vec3( 0.0, -0.5, 0), radius: 0.4, force: 1.0 }
     ];
 
-    var iso = this.iso = new IsoSurface(20, 1);
+    var iso = this.iso = new IsoSurface(16, 1);
     var isoGeom = iso.update(spheres);
 
     var matCap = Texture2D.load('../../assets/textures/matcaps/plastic_red.jpg');
