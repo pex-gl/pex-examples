@@ -27,7 +27,8 @@ sys.Window.create({
     width: 1280,
     height: 720,
     type: '3d',
-    fullscreen: sys.Platform.isBrowser
+    fullscreen: sys.Platform.isBrowser,
+    highdpi: 2
   },
   init: function() {
     var shapes = [
@@ -69,6 +70,7 @@ sys.Window.create({
     glu.clearColorAndDepth(Color.Black);
     glu.enableDepthReadAndWrite(true);
     glu.cullFace();
+    glu.lineWidth(2);
 
     this.objects.forEach(function(o) {
       glu.viewport(o.viewport.x, o.viewport.y, o.viewport.width, o.viewport.height);

@@ -23,7 +23,8 @@ sys.Window.create({
     width: 1280,
     height: 720,
     type: '3d',
-    fullscreen: sys.Platform.isBrowser
+    fullscreen: sys.Platform.isBrowser,
+    highdpi: 2
   },
   init: function() {
     var cube = new Box(0.5);
@@ -59,6 +60,7 @@ sys.Window.create({
   draw: function() {
     glu.clearColorAndDepth(Color.Black);
     glu.enableDepthReadAndWrite(true);
+    glu.lineWidth(2);
 
     this.scene.forEach(function(o) {
       o.draw(this.camera);
