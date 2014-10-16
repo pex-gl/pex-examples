@@ -38,7 +38,7 @@ sys.Window.create({
     var rtHeight = Math.min(this.height, this.width/2);
 
     //create textures for offscreen rendering
-    var colorBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.RGBA, type: this.gl.UNSIGNED_BYTE });
+    var colorBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.RGBA, bpp: 32 });
     var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
 
     this.renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorBuf, depth: depthBuf });
