@@ -65,7 +65,7 @@ Window.create({
     this.gui.addLabel('g - toggle gui on/off');
     this.gui.addLabel('S - save settings');
     this.gui.addLabel('L - load settings');
-    this.gui.addLabel('');
+    this.gui.addSeparator('-');
 
     this.gui.addLabel('CUBE');
     this.gui.addParam('Viewport', this, 'viewport');
