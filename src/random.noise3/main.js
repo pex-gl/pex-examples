@@ -8,10 +8,11 @@ var rnd = require('pex-random');
 
 var HexSphere = gen.HexSphere;
 var Mesh = glu.Mesh;
-var ShowNormals = mat.ShowNormals;
+var Diffuse = mat.Diffuse;
 var PerspectiveCamera = glu.PerspectiveCamera;
 var Arcball = glu.Arcball;
 var Color = color.Color;
+var Time = sys.Time;
 
 sys.Window.create({
   settings: {
@@ -22,15 +23,10 @@ sys.Window.create({
   },
   init: function() {
     var sphere = new HexSphere(0.5, 4);
-    sphere.vertices.forEach(function(v) {
-      var n = v.dup().normalize()
-      var f = 0.1 * rnd.noise3(n.x, n.y, n.z);
-      v.add(n.scale(f));
-    })
-
     sphere = sphere.triangulate();
     sphere.computeNormals();
-    this.mesh = new Mesh(sphere, new ShowNormals());
+    this.origSphere = sphere.clone();
+    this.mesh = new Mesh(sphere, new Diffuse({ wrap: 1 }));
 
     this.camera = new PerspectiveCamera(60, this.width / this.height);
     this.arcball = new Arcball(this, this.camera);
@@ -38,6 +34,18 @@ sys.Window.create({
   draw: function() {
     glu.clearColorAndDepth(Color.White);
     glu.enableDepthReadAndWrite(true);
+
+    var origSphere = this.origSphere;
+
+    this.mesh.geometry.vertices.forEach(function(v, vi) {
+      var n = origSphere.vertices[vi].dup().normalize()
+      var f = 0.1 * rnd.noise3(n.x + Time.seconds, n.y, n.z);
+      v.setVec3(origSphere.vertices[vi]);
+      v.add(n.scale(f));
+    });
+    this.mesh.geometry.vertices.dirty = true;
+    this.mesh.geometry.computeNormals();
+
     this.mesh.draw(this.camera);
   }
 });
