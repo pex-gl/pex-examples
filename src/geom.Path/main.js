@@ -48,7 +48,7 @@ sys.Window.create({
     });
 
     lineBuilder.addPath(path, Color.Blue, 8, true);
-    lineBuilder.addPath(spline, Color.Orange, 8, true);
+    lineBuilder.addPath(spline, Color.Orange, 16, true);
     lineBuilder.addCross(new Vec3(0, 0, 0), 2, Color.Red);
 
     this.mesh = new Mesh(lineBuilder, new ShowColors(), { lines: true });
