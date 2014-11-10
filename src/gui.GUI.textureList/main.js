@@ -54,7 +54,7 @@ Window.create({
 
     this.gui.addLabel('Settings');
     this.gui.addTextureList('TEXTURE', this, 'textureIndex', textureItems, 6, this.onTextureChanged.bind(this));
-    this.gui.addLabel('Click on of the above')
+    this.gui.addLabel('Click one of the above')
     this.gui.addLabel('textures to choose it.')
 
     var gl = glu.Context.currentContext;
