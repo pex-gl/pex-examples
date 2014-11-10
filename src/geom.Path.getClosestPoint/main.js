@@ -2,11 +2,13 @@ var sys = require('pex-sys');
 var geom = require('pex-geom');
 var color = require('pex-color');
 var random = require('pex-random');
+var omgcanvas = require('omgcanvas');
 
 var Path = geom.Path;
 var Spline3D = geom.Spline3D;
 var Vec3 = geom.Vec3;
 var Color = color.Color;
+var Platform = sys.Platform;
 
 sys.Window.create({
   settings: {
@@ -32,45 +34,59 @@ sys.Window.create({
     }
 
     this.on('mouseMoved', this.mouseMoved.bind(this));
+
+    if (Platform.isBrowser) {
+      this.context = this.canvas.getContext('2d');
+    }
+    else { //Plask
+      //create HTML Canvas wrapper on top of Skia SkCanvas
+      this.context = new omgcanvas.CanvasContext(this.canvas);
+    }
   },
   mouseMoved: function(e) {
     this.mousePos.x = e.x;
     this.mousePos.y = e.y;
   },
   drawPoints: function(points, color) {
-    var canvas = this.canvas;
-    var paint = this.paint;
-    paint.setStroke();
-    paint.setColor(color.r*255, color.g*255, color.b*255, 255);
-    paint.setAntiAlias(true);
+    var ctx = this.context;
+    ctx.strokeStyle = color.getHex();
     var prevPoint = null;
     points.forEach(function(p) {
       if (prevPoint) {
-        canvas.drawLine(paint, prevPoint.x, prevPoint.y, p.x, p.y);
+        ctx.beginPath();
+        ctx.moveTo(prevPoint.x, prevPoint.y);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
       }
-      canvas.drawRect(paint, p.x-3, p.y-3, p.x+3, p.y+3);
+      ctx.strokeRect(p.x-3, p.y-3, 6, 6);
       prevPoint = p;
     });
   },
   draw: function() {
-    var canvas = this.canvas;
-    var paint = this.paint;
-    canvas.drawColor(255, 255, 255, 255);
+    var ctx = this.context;
+    ctx.fillStyle = "#FFF";
+    ctx.fillRect(0, 0, this.width, this.height);
 
     this.drawPoints(this.points, Color.Red);
     this.drawPoints(this.splinePoints, Color.Green);
 
-    paint.setColor(255, 0, 255, 255);
-    canvas.drawRect(paint, this.mousePos.x-10, this.mousePos.y-10, this.mousePos.x+10, this.mousePos.y+10);
+    ctx.strokeStyle = "#FF00FF";
+    ctx.strokeRect(this.mousePos.x-10, this.mousePos.y-10, 20, 20);
 
     var closestPoint = this.path.getClosestPoint(this.mousePos);
-    paint.setColor(150, 0, 0, 255);
-    canvas.drawRect(paint, closestPoint.x-10, closestPoint.y-10, closestPoint.x+10, closestPoint.y+10);
-    canvas.drawLine(paint, closestPoint.x, closestPoint.y, this.mousePos.x, this.mousePos.y);
+    ctx.strokeStyle = "#AA0000";
+    ctx.strokeRect(closestPoint.x-10, closestPoint.y-10, 20, 20);
+    ctx.beginPath();
+    ctx.moveTo(closestPoint.x, closestPoint.y);
+    ctx.lineTo(this.mousePos.x, this.mousePos.y);
+    ctx.stroke();
 
     var closesSplinePoint = this.spline.getClosestPoint(this.mousePos);
-    paint.setColor(0, 150, 0, 255);
-    canvas.drawRect(paint, closesSplinePoint.x-8, closesSplinePoint.y-8, closesSplinePoint.x+8, closesSplinePoint.y+8);
-    canvas.drawLine(paint, closesSplinePoint.x, closesSplinePoint.y, this.mousePos.x, this.mousePos.y);
+    ctx.strokeStyle = "#00AA00";
+    ctx.strokeRect(closesSplinePoint.x-8, closesSplinePoint.y-8, 16, 16);
+    ctx.beginPath();
+    ctx.moveTo(closesSplinePoint.x, closesSplinePoint.y);
+    ctx.lineTo(this.mousePos.x, this.mousePos.y);
+    ctx.stroke();
   }
 })

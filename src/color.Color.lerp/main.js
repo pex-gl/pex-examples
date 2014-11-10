@@ -1,6 +1,9 @@
 var sys = require('pex-sys');
 var color = require('pex-color');
+var omgcanvas = require('omgcanvas');
+
 var Color = color.Color;
+var Platform = sys.Platform;
 
 function range(min, max) {
   var result = [];
@@ -22,13 +25,18 @@ sys.Window.create({
     fullscreen: sys.Platform.isBrowser
   },
   init: function() {
-  },
-  drawRect: function(x, y, w, h, color) {
+    if (Platform.isBrowser) {
+      this.context = this.canvas.getContext('2d');
+    }
+    else { //Plask
+      //create HTML Canvas wrapper on top of Skia SkCanvas
+      this.context = new omgcanvas.CanvasContext(this.canvas);
+    }
   },
   draw: function() {
-    var canvas = this.canvas;
-    var paint = this.paint;
-    canvas.drawColor(0, 0, 0, 255);
+    var ctx = this.context;
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, this.width, this.height);
 
     var startColor = Color.fromHSL(0.19, 0.4, 0.5);
     var endColor = Color.fromHSL(0.7, 0.4, 0.5);
@@ -51,34 +59,34 @@ sys.Window.create({
     var hslColors2 = range(0, numSteps).map(function(i) { return Color.lerp(startColor2, endColor2, i/(numSteps-1), 'hsl'); });
 
     function drawRects(colors) {
-      paint.setFill();
       colors.forEach(function(color, colorIndex) {
-        paint.setColor(color.r * 255, color.g * 255, color.b * 255, 255);
+        ctx.fillStyle = color.getHex();
         var x = remap(colorIndex, 0, colors.length, margin, windowWidth - 2 * margin);
-        canvas.drawRect(paint, x, 0, x + rectWidth, rectHeight);
+
+        ctx.fillRect(x, 0, rectWidth, rectHeight);
       });
     }
 
-    canvas.save();
+    ctx.save();
 
-    canvas.translate(0, margin);
+    ctx.translate(0, margin);
     drawRects(rgbColors);
 
-    canvas.translate(0, margin + rectHeight);
+    ctx.translate(0, margin + rectHeight);
     drawRects(hsvColors);
 
-    canvas.translate(0, margin + rectHeight);
+    ctx.translate(0, margin + rectHeight);
     drawRects(hslColors);
 
-    canvas.translate(0, margin + rectHeight);
+    ctx.translate(0, margin + rectHeight);
     drawRects(rgbColors2);
 
-    canvas.translate(0, margin + rectHeight);
+    ctx.translate(0, margin + rectHeight);
     drawRects(hsvColors2);
 
-    canvas.translate(0, margin + rectHeight);
+    ctx.translate(0, margin + rectHeight);
     drawRects(hslColors2);
 
-    canvas.restore();
+    ctx.restore();
   }
 });
