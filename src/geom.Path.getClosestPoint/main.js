@@ -1,6 +1,7 @@
 var sys = require('pex-sys');
 var geom = require('pex-geom');
 var color = require('pex-color');
+var random = require('pex-random');
 
 var Path = geom.Path;
 var Spline3D = geom.Spline3D;
@@ -14,11 +15,11 @@ sys.Window.create({
   },
   mousePos: new Vec3(0, 0, 0),
   init: function() {
-    geom.randomSeed(1);
+    random.seed(1);
     var numPoints = 10;
     this.points = [];
     for(var i=0; i<numPoints; i++) {
-      this.points.push(new Vec3(geom.randomFloat(this.width*0.1, this.width*0.9), geom.randomFloat(this.height*0.2, this.height*0.8), 0));
+      this.points.push(new Vec3(random.float(this.width*0.1, this.width*0.9), random.float(this.height*0.2, this.height*0.8), 0));
     }
     this.points.sort(function(a, b) {
       return a.x - b.x;
