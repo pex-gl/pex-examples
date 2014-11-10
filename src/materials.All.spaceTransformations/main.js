@@ -29,7 +29,6 @@ var ShowWorldPosition = require('./materials/ShowWorldPosition');
 var ViewSize = 250;
 var rtWidth = 512;
 var rtHeight = 512;
-var c
 
 sys.Window.create({
   settings: {
@@ -40,6 +39,12 @@ sys.Window.create({
   },
   init: function() {
     this.gui = new GUI(this);
+
+    //find the preview size so they all fit on screen
+    ViewSize = Math.pow(2, Math.ceil(Math.log(this.width)/Math.log(2))) >> 3;
+    while(ViewSize > 4 && ViewSize * 4 > this.width) {
+      ViewSize >>= 1;
+    }
 
     var cube = new Cube(0.5);
     var mesh = new Mesh(cube, new Diffuse( { diffuseColor: Color.Grey, ambientColor: Color.DarkGrey }));
@@ -66,7 +71,7 @@ sys.Window.create({
       this.gui.addLabel('Color').setPosition(5, 5);
       return function() {
         //viewport counts pixels from bottom left
-        glu.viewport(0, 2 * ViewSize, ViewSize, ViewSize);
+        glu.viewport(0, this.height-ViewSize, ViewSize, ViewSize);
         glu.clearColorAndDepth(Color.Black);
         this.drawScene();
       }.bind(this);
