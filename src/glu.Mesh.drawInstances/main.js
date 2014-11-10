@@ -4,6 +4,7 @@ var geom = require('pex-geom');
 var gen = require('pex-gen');
 var materials = require('pex-materials');
 var color = require('pex-color');
+var random = require('pex-random');
 
 var Sphere = gen.Sphere;
 var Mesh = glu.Mesh;
@@ -27,10 +28,10 @@ sys.Window.create({
     this.instances = [];
 
     for(var i=0; i<numInstances; i++) {
-      var radius = geom.randomFloat(0.1, 0.5);
-      var hue = geom.randomFloat();
+      var radius = random.float(0.1, 0.5);
+      var hue = random.float();
       var instance = {
-        position: geom.randomVec3(2), //mesh position
+        position: random.vec3(2), //mesh position
         scale: new Vec3(radius, radius, radius), //mesh scale
         uniforms: { //material uniforms
           diffuseColor: Color.fromHSL(hue, 1, 0.5)

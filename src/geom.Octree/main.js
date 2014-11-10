@@ -5,6 +5,7 @@ var color = require('pex-color');
 var gen = require('pex-gen');
 var geom = require('pex-geom');
 var helpers = require('pex-helpers');
+var random = require('pex-random');
 
 var Octree = geom.Octree;
 var OctreeHelper = helpers.OctreeHelper;
@@ -66,18 +67,16 @@ sys.Window.create({
   testNearest: function(octree) {
     var n = 100;
 
-    geom.randomSeed(1);
+    random.seed(1);
     for(var i=0; i<n; i++) {
-      var p = geom.randomVec3(1).add(new Vec3(1, 1, 1)); //move the points to (0,0,0),(2,2,2) box
+      var p = random.vec3(1).add(new Vec3(1, 1, 1)); //move the points to (0,0,0),(2,2,2) box
       p.z = 1; //for easier debugging
       this.points.push(p);
     }
 
     this.points.forEach(function(p) {
-      octree.add(p, Color.fromHSL(Math.random(), 1, 0.5));
+      octree.add(p, Color.fromHSL(random.float(), 1, 0.5));
     })
-
-    console.log('this.nearestPoint', this.nearestPoint)
   },
   draw: function() {
     glu.clearColorAndDepth(Color.Black);

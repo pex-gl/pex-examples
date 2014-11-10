@@ -5,6 +5,7 @@ var gen = require('pex-gen');
 var materials = require('pex-materials');
 var color = require('pex-color');
 var fx = require('pex-fx');
+var random = require('pex-random');
 
 var Sphere = gen.Sphere;
 var Cube = gen.Cube;
@@ -34,10 +35,10 @@ sys.Window.create({
 
     this.instances = [];
     for(var i=0; i<10; i++) {
-      this.instances.push(geom.randomVec3(0.35));
+      this.instances.push(random.vec3(0.35));
     }
     for(var i=0; i<10; i++) {
-      this.instances.push(geom.randomVec3(1.05));
+      this.instances.push(random.vec3(1.05));
     }
   },
   drawColor: function() {
