@@ -60,10 +60,10 @@ sys.Window.create({
   light: false,
   init: function() {
     var shapePath = new Path([
-      new Vec3(-0.1, -0.4, 0),
-      new Vec3( 0.1, -0.4, 0),
-      new Vec3( 0.1,  0.4, 0),
-      new Vec3(-0.1,  0.4, 0)
+      new Vec3(-0.05, -0.2, 0),
+      new Vec3( 0.05, -0.2, 0),
+      new Vec3( 0.05,  0.2, 0),
+      new Vec3(-0.05,  0.2, 0)
     ]);
     points.forEach(function(p) {
       p.z = 0;
