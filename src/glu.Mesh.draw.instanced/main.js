@@ -3,6 +3,7 @@ var glu = require('pex-glu');
 var materials = require('pex-materials');
 var color = require('pex-color');
 var gen = require('pex-gen');
+var gui = require('pex-gui');
 var geom = require('pex-geom');
 var random = require('pex-random');
 
@@ -18,10 +19,11 @@ var Time = sys.Time;
 var Vec3 = geom.Vec3;
 var Quat = geom.Quat;
 var Platform = sys.Platform;
+var GUI = gui.GUI;
 
 var ShowNormalsInstanced = require('./materials/ShowNormalsInstanced');
 
-var DPI = Platform.isPlask ? 2 : 1;
+var DPI = Platform.isPlask ? 2 : 2;
 
 function prop(name) {
   return function(o) {
@@ -34,10 +36,14 @@ sys.Window.create({
     width: 1280*DPI,
     height: 720*DPI,
     type: '3d',
-    highdpi: DPI
+    highdpi: DPI,
+    fullscreen: Platform.isBrowser
   },
+  instancing: true,
   init: function() {
     this.framerate(70);
+    this.gui = new GUI(this);
+    this.gui.addParam('instancing', this, 'instancing');
 
     random.seed(10)
 
@@ -46,14 +52,17 @@ sys.Window.create({
     base = base.catmullClark();
     var lowPolyBase = base.catmullClark()
     lowPolyBase.computeNormals();
-    base = base.catmullClark().catmullClark().catmullClark();
+    base = base.catmullClark().catmullClark().catmullClark();//.catmullClark();//.catmullClark();
     base.computeNormals();
+
+    console.log('instances', base.vertices.length);
 
     this.baseMesh = new Mesh(lowPolyBase, new SolidColor({ color: Color.Black }))
     //this.baseMesh = new Mesh(lowPolyBase, new ShowNormals({ color: Color.Black }))
 
-    var cube = new Cube(0.005, 0.005, 0.1);
-    this.mesh = new Mesh(cube, new ShowNormalsInstanced());
+    var cube = new Cube(0.005, 0.005, 0.05);
+    this.mesh = new Mesh(cube, new ShowNormals());
+    this.meshInstanced = new Mesh(cube, new ShowNormalsInstanced());
 
     this.camera = new PerspectiveCamera(60, this.width / this.height);
     this.arcball = new Arcball(this, this.camera);
@@ -84,11 +93,18 @@ sys.Window.create({
 
     var gl = this.gl;
 
-
     this.baseMesh.draw(this.camera);
-    this.mesh.drawInstances(this.camera, this.instances);
-    //this.mesh.draw(this.camera);
 
     this.gl.finish();
+    //console.time('draw');
+    if (this.instancing) {
+      this.meshInstanced.draw(this.camera);
+    }
+    else {
+      this.mesh.drawInstances(this.camera, this.instances);
+    }
+    //console.timeEnd('draw');
+    this.gl.finish();
+    this.gui.draw();
   }
 });
