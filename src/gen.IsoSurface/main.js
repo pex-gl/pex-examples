@@ -42,12 +42,12 @@ Window.create({
       { position: new Vec3( 0.0, -0.5, 0), radius: 0.4, force: 1.0 }
     ];
 
-    var iso = this.iso = new IsoSurface(16, 1);
-    var isoGeom = iso.update(spheres);
+    this.isoSurface = new IsoSurface(16, 1);
+    this.isoSurface.update(spheres);
 
     var matCap = Texture2D.load('../../assets/textures/matcaps/plastic_red.jpg');
 
-    this.meshes.push(new Mesh(isoGeom, new MatCap({ texture: matCap }), { triangles: true }));
+    this.meshes.push(new Mesh(this.isoSurface, new MatCap({ texture: matCap }), { triangles: true }));
 
     var boxGeom = new Cube();
     boxGeom.computeEdges();
@@ -76,8 +76,8 @@ Window.create({
     this.spheres[2].position.x = 0.4*Math.cos(Time.seconds*2+Math.PI/4)
     this.spheres[2].position.y = 0.5*Math.sin(Time.seconds*2+Math.PI/4)*Math.cos(Time.seconds*2+Math.PI/4)
     this.spheres[2].position.z = 0.1*Math.cos(Time.seconds*3+Math.PI/4)
-    this.meshes[0].geom = this.iso.update(this.spheres);
-    this.meshes[0].geom.computeEdges();
+    this.isoSurface.update(this.spheres);
+    this.isoSurface.computeEdges();
 
     for(var j=0; j<rows; j++) {
       for(var i=0; i<cols; i++) {
