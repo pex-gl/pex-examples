@@ -26,6 +26,8 @@ sys.Window.create({
     fullscreen: sys.Platform.isBrowser
   },
   init: function() {
+    random.seed(0);
+
     this.camera = new PerspectiveCamera(60, this.width/this.height, 0.1, 10);
     this.arcball = new Arcball(this, this.camera, 2);
 
@@ -34,10 +36,10 @@ sys.Window.create({
     this.mesh = new Mesh(new Sphere(0.3), this.showNormals);
 
     this.instances = [];
-    for(var i=0; i<10; i++) {
+    for(var i=0; i<20; i++) {
       this.instances.push(random.vec3(0.35));
     }
-    for(var i=0; i<10; i++) {
+    for(var i=0; i<20; i++) {
       this.instances.push(random.vec3(1.05));
     }
   },
