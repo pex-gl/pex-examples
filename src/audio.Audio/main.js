@@ -21,7 +21,7 @@ sys.Window.create({
     this.gui.addLabel('Playing demo-it.mp3');
     this.isPlayingLabel = this.gui.addLabel('Is playing');
     this.currentTimeLabel = this.gui.addLabel('Current time');
-    this.gui.addParam('Progress', this, 'progress');
+    this.gui.addParam('Progress', this, 'progress', { min: 0, max: 1}, this.onSeek.bind(this));
     this.gui.addParam('Volume', this.audio, 'volume');
     this.gui.addParam('Loop', this.audio, 'loop');
 
@@ -35,13 +35,16 @@ sys.Window.create({
       this.audio.play();
     }
   },
+  onSeek: function(value) {
+    this.audio.currentTime = value * this.audio.duration;
+  },
   draw: function() {
     glu.clearColorAndDepth(Color.DarkGrey);
     glu.enableDepthReadAndWrite(true);
 
-    this.progress = this.audio.currentTime / this.audio.duration;
+    this.progress = this.audio.duration ? this.audio.currentTime / this.audio.duration : 0;
     this.isPlayingLabel.setTitle('Is playing: ' + this.audio.isPlaying);
-    this.currentTimeLabel.setTitle('Curr Time: ' + Math.floor(this.audio.currentTime*100)/100);
+    this.currentTimeLabel.setTitle('Curr Time: ' + Math.floor(this.audio.currentTime*100)/100 + '/' + Math.floor(this.audio.duration*100)/100);
 
     this.gui.draw();
   }
