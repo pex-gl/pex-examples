@@ -24,9 +24,18 @@ webpage
     webpage.reload();
 
     setTimeout(function() {
+      webpage.evaluate(function () {
+      var info = document.querySelector('#info');
+        //info.innerHTML = 'dupa';
+        info.parentNode.removeChild(info);
+      });
+    }, 100);
+
+
+    setTimeout(function() {
       webpage.render(thumbPath, { onlyViewport: true });
 
       webpage.close();
       slimer.exit();
-    }, 500);
+    }, 200);
   });
