@@ -28,7 +28,7 @@ sys.Window.create({
     ];
 
     var triangleFaces = [
-      0, 1, 2
+      [ 0, 1, 2 ]
     ];
 
     var triangleColors = [
