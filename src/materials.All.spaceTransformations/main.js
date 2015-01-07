@@ -5,6 +5,7 @@ var color = require('pex-color');
 var gen = require('pex-gen');
 var geom = require('pex-geom');
 var gui = require('pex-gui');
+var fs = require('fs');
 
 var Platform = sys.Platform;
 var Cube = gen.Cube;
@@ -25,6 +26,12 @@ var GUI = gui.GUI;
 var Program = glu.Program;
 
 var ShowWorldPosition = require('./materials/ShowWorldPosition');
+
+var DepthCompareGLSL = fs.readFileSync(__dirname + '/shaders/DepthCompare.glsl', 'utf8');
+var ReconstructPositionGLSL = fs.readFileSync(__dirname + '/shaders/ReconstructPosition.glsl', 'utf8');
+var ReconstructPositionCompareGLSL = fs.readFileSync(__dirname + '/shaders/ReconstructPositionCompare.glsl', 'utf8');
+var ReconstructWorldPositionGLSL = fs.readFileSync(__dirname + '/shaders/ReconstructWorldPosition.glsl', 'utf8');
+var ReconstructWorldPositionCompareGLSL = fs.readFileSync(__dirname + '/shaders/ReconstructWorldPositionCompare.glsl', 'utf8');
 
 var ViewSize = 250;
 var rtWidth = 512;
@@ -136,7 +143,7 @@ sys.Window.create({
       var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
       var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
       var screenImage = new ScreenImage(colorTex, 1 * ViewSize, 2 * ViewSize, ViewSize, ViewSize, this.width, this.height);
-      var depthCompare = Program.load('./shaders/DepthCompare.glsl');
+      var depthCompare = new Program(DepthCompareGLSL);
       return function() {
         glu.viewport(0, 0, renderTarget.width, renderTarget.height);
         renderTarget.bind();
@@ -179,7 +186,7 @@ sys.Window.create({
       var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
       var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
       var screenImage = new ScreenImage(colorTex, 2 * ViewSize, ViewSize, ViewSize, ViewSize, this.width, this.height);
-      var resonstructPosition = Program.load('./shaders/ReconstructPosition.glsl');
+      var resonstructPosition = new Program(ReconstructPositionGLSL)
       return function() {
         glu.viewport(0, 0, renderTarget.width, renderTarget.height);
         renderTarget.bind();
@@ -205,7 +212,7 @@ sys.Window.create({
       var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
       var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
       var screenImage = new ScreenImage(colorTex, 2 * ViewSize, 2 * ViewSize, ViewSize, ViewSize, this.width, this.height);
-      var resonstructPosition = Program.load('./shaders/ReconstructPositionCompare.glsl');
+      var resonstructPosition = new Program(ReconstructPositionCompareGLSL);
       return function() {
         glu.viewport(0, 0, renderTarget.width, renderTarget.height);
         renderTarget.bind();
@@ -250,7 +257,7 @@ sys.Window.create({
       var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
       var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
       var screenImage = new ScreenImage(colorTex, 3 * ViewSize, ViewSize, ViewSize, ViewSize, this.width, this.height);
-      var resonstructPosition = Program.load('./shaders/ReconstructWorldPosition.glsl');
+      var resonstructPosition = new Program(ReconstructWorldPositionGLSL);
       return function() {
         glu.viewport(0, 0, renderTarget.width, renderTarget.height);
         renderTarget.bind();
@@ -277,7 +284,7 @@ sys.Window.create({
       var depthBuf = Texture2D.create(rtWidth, rtHeight, { format: this.gl.DEPTH_COMPONENT, type: this.gl.UNSIGNED_SHORT });
       var renderTarget = new RenderTarget(rtWidth, rtHeight, { color: colorTex, depth: depthBuf });
       var screenImage = new ScreenImage(colorTex, 3 * ViewSize, 2 * ViewSize, ViewSize, ViewSize, this.width, this.height);
-      var resonstructPosition = Program.load('./shaders/ReconstructWorldPositionCompare.glsl');
+      var resonstructPosition = new Program(ReconstructWorldPositionCompareGLSL);
       return function() {
         glu.viewport(0, 0, renderTarget.width, renderTarget.height);
         renderTarget.bind();
