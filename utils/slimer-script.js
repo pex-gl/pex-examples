@@ -37,5 +37,5 @@ webpage
 
       webpage.close();
       slimer.exit();
-    }, 200);
+    }, 500);
   });
