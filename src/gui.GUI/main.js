@@ -44,6 +44,7 @@ Window.create({
   rotationSpeed: 1,
   rotationAngle: 0,
   viewport: new Vec2(1, 1),
+  message: 'Hello',
   init: function() {
     this.gui = new gui.GUI(this);
     this.camera = new PerspectiveCamera(60, this.width / this.height);
@@ -90,11 +91,14 @@ Window.create({
       { name: 'Textured with Alpha', value: 3 }
     ], function(idx) { console.log('Material changed', idx); }).setPosition(180, 10);
 
+    this.gui.addParam('Message', this, 'message');
+
     //this.gui.load('client.gui.settings.txt'); //BUG
 
     var self = this;
     self.gui.load('client.gui.settings.txt');
     this.on('keyDown', function(e) {
+      if (e.handled) return;
       switch(e.str) {
         case 'g': self.gui.toggleEnabled();
         case 'S': self.gui.save('client.gui.settings.txt'); break;
