@@ -53,7 +53,7 @@ Window.create({
     this.material = new Textured({ texture: this.textures[this.textureIndex] })
 
     this.gui.addLabel('Settings');
-    this.gui.addTextureList('TEXTURE', this, 'textureIndex', textureItems, 6, this.onTextureChanged.bind(this));
+    this.gui.addTextureList('TEXTURE', this, 'textureIndex', textureItems, 2, this.onTextureChanged.bind(this));
     this.gui.addLabel('Click one of the above')
     this.gui.addLabel('textures to choose it.')
 
