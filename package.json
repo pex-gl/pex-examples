@@ -32,5 +32,8 @@
     "url": "https://github.com/variablestudio/pex-examples.git"
   },
   "bugs": "https://github.com/variablestudio/pex-examples/issues",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "glslify-promise": "^1.0.1"
+  }
 }
