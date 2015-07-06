@@ -35,10 +35,11 @@
   "license": "MIT",
   "dependencies": {
     "glslify-promise": "^1.0.1",
+    "primitive-torus": "^1.0.4",
     "variablestudio/pex-context": "*",
-    "variablestudio/pex-sys": "*",
+    "variablestudio/pex-io": "*",
     "variablestudio/pex-math": "*",
-    "variablestudio/pex-io": "*"
+    "variablestudio/pex-sys": "*"
   },
   "devDependencies": {
     "beefy": "^2.1.5",
