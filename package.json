@@ -34,6 +34,14 @@
   "bugs": "https://github.com/variablestudio/pex-examples/issues",
   "license": "MIT",
   "dependencies": {
-    "glslify-promise": "^1.0.1"
+    "glslify-promise": "^1.0.1",
+    "variablestudio/pex-context": "*",
+    "variablestudio/pex-sys": "*",
+    "variablestudio/pex-math": "*",
+    "variablestudio/pex-io": "*"
+  },
+  "devDependencies": {
+    "beefy": "^2.1.5",
+    "browserify": "^10.2.4"
   }
 }
