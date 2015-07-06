@@ -2,7 +2,7 @@
 
 Examples for the pex library
 
-## how to run the examples in the browser
+## How to run the examples in the browser?
 
 ```
 git clone http://github.com/variablestudio/pex-examples
