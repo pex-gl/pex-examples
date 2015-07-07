@@ -65,18 +65,15 @@ Window.create({
 
         var buf = res.ddsCubemap;
         var result = parseDDS(buf);
+        if (result.format !== 'rgba32f') {
+            throw new Error('Unsupported cubemap data format ' + result.format);
+        }
 
         //dds images are orgianized by faces by mipmaps
         //so +x0 +x1 +x2 ... -x0 -x1 -x2 ... +y0..
         var levels = result.images.length / 6;
         var faces = result.images.map(function(img, imgIndex) {
-            var faceData;
-            if (result.format == 'rgba32f') {
-                faceData = new Float32Array(buf.slice(img.offset, img.offset + img.length))
-            }
-            else {
-                throw new Error('Unsupported cubemap data format ' + result.format);
-            }
+            var faceData = new Float32Array(buf.slice(img.offset, img.offset + img.length))
             return {
                 face: Math.floor(imgIndex / levels),
                 lod: imgIndex % levels,
