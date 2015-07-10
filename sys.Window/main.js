@@ -6,8 +6,7 @@ var frame = 0;
 Window.create({
     settings: {
         width: 1280,
-        height: 720,
-        type: '3d'
+        height: 720
     },
     init: function() {
         console.log('init');
