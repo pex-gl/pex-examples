@@ -1,30 +1,9 @@
 var Window = require('pex-sys/Window');
 var Mat4   = require('pex-math/Mat4');
 var Draw   = require('pex-draw');
+var glslify = require('glslify-promise');
 
 var PerspCamera = require('pex-cam/PerspCamera');
-
-var VERT_SRC = '\
-attribute vec4 aPosition; \
-attribute vec4 aColor; \
-varying vec4 vColor; \
-uniform mat4 uProjectionMatrix;\
-uniform mat4 uViewMatrix;\
-uniform mat4 uModelMatrix;\
-uniform float uPointSize;\
-void main() { \
-    gl_Position = uProjectionMatrix * uViewMatrix * uModelMatrix * aPosition; \
-    vColor = aColor; \
-    gl_PointSize = uPointSize;\
-} \
-';
-
-var FRAG_SRC = '\
-varying vec4 vColor; \
-void main() { \
-    gl_FragColor = vColor; \
-} \
-';
 
 var COLOR_WHITE  = [1,1,1,1];
 var COLOR_BLACK  = [0,0,0,1];
@@ -39,9 +18,14 @@ Window.create({
         height: 600,
         type: '3d'
     },
+    resources: {
+        showColorsVert: { glsl: glslify(__dirname + '/../assets/glsl/ShowColors.vert') },
+        showColorsFrag: { glsl: glslify(__dirname + '/../assets/glsl/ShowColors.frag') },
+    },
     init: function() {
         var ctx = this.getContext();
-        var program = ctx.createProgram(VERT_SRC, FRAG_SRC);
+        var res = this.getResources();
+        var program = ctx.createProgram(res.showColorsVert, res.showColorsFrag);
         ctx.bindProgram(program);
         this.t = 0;
 
