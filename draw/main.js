@@ -137,6 +137,18 @@ Window.create({
                     0,0,1,1,0,1
                 ]);
             ctx.popModelMatrix();
+
+            ctx.pushModelMatrix();
+                ctx.translate([-2.5,0,2.5]);
+                draw.setColor(COLOR_GREEN);
+                draw.setCircleNumSegments(16);
+                draw.drawCircle(1);
+                ctx.translate(offset);
+                draw.setColor(COLOR_WHITE);
+                draw.setLineWidth(1);
+                draw.setCircleNumSegments(5);
+                draw.drawCircleStroked(1);
+            ctx.popModelMatrix();
         ctx.popModelMatrix();
 
         this.t += 1 / 60;
