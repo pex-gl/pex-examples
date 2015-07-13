@@ -44,9 +44,6 @@ Window.create({
         mouse.addEventListener(MouseEvent.MOUSE_DRAG,function(e){
             self._arcball.onMouseDrag(e);
         });
-        mouse.addEventListener(MouseEvent.MOUSE_UP,function(e){
-            self._arcball.onMouseUp(e);
-        });
         mouse.addEventListener(MouseEvent.MOUSE_SCROLL,function(e){
             self._arcball.onMouseScroll(e);
         });
@@ -56,8 +53,24 @@ Window.create({
         //})
         //var keyboard = this.getKeyboard();
     },
-    triggerArcballUsage : function(){
-        this._arcball.isEnabled() ? this._arcball.disable() : this._arcball.enable();
+    onKeyDown : function(e){
+        switch (+e.str){
+            case 1:
+                this._arcball.setLookDirection([1,0,0]);
+                break;
+            case 2:
+                this._arcball.setLookDirection([0,1,0]);
+                break;
+            case 3:
+                this._arcball.setLookDirection([0,0,1]);
+                break;
+            case 4:
+                this._arcball.setLookDirection([1,1,1]);
+                break;
+            case 5:
+                this._arcball.setLookDirection([-1,-1,-1]);
+                break;
+        }
     },
     draw : function(){
         var ctx  = this.getContext();
