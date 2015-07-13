@@ -73,6 +73,7 @@ Window.create({
         ctx.pushModelMatrix();
             ctx.translate([0,0.0125,0]);
             draw.drawPivotAxes(2);
+            draw.drawPivotRotation(1.5);
         ctx.popModelMatrix();
 
 
