@@ -67,6 +67,13 @@ Window.create({
             ctx.popModelMatrix();
         }
 
+        function drawPivotSmall(){
+            ctx.pushModelMatrix();
+                ctx.scale([0.5,0.5,0.5]);
+                draw.drawPivotAxes();
+            ctx.popModelMatrix();
+        }
+
         //draw grid
         draw.setLineWidth(1.5);
         draw.setColor4(0.15,0.15,0.15,1.0);
@@ -74,6 +81,12 @@ Window.create({
         draw.setLineWidth(1);
         draw.setColor4(0.145,0.145,0.145,1.0);
         draw.drawGrid([20,20],80);
+
+        //draw pivot
+        ctx.pushModelMatrix();
+            ctx.translate([0,0.125,0]);
+            draw.drawPivotAxes();
+        ctx.popModelMatrix();
 
         //transform model with matrix stack
         ctx.pushModelMatrix();
@@ -87,6 +100,7 @@ Window.create({
                     ctx.pushModelMatrix();
                         var rotationAngle = time * Math.PI;
                         var rotationAxis  = [0,1,0];
+                        drawPivotSmall();
                         ctx.rotate(rotationAngle,rotationAxis);
                         drawCube();
                     ctx.popModelMatrix();
@@ -95,6 +109,7 @@ Window.create({
                     ctx.translate(OFFSET_X);
                     ctx.pushModelMatrix();
                         var rotationPerAxis = [0,rotationAngle,0];
+                        drawPivotSmall();
                         ctx.rotateXYZ(rotationPerAxis);
                         drawCube();
                     ctx.popModelMatrix();
@@ -114,19 +129,27 @@ Window.create({
                         Vec3.cross(Vec3.set(bitangent,tangent),Vec3.yAxis());
                         Vec3.cross(Vec3.set(normal,bitangent),tangent);
 
-                        var rotation = Mat4.createFromOnB(tangent,normal,bitangent);
+                        //var rotation = Mat4.createFromOnB(tangent,normal,bitangent);
+                        var rotation = Mat4.lookAt(Mat4.create(),origin,target,[0,1,0]);
 
+                        //var rotation = Mat4.createFromRotation(rotationAngle,rotationAxis);
+
+                        drawPivotSmall();
                         draw.setColor4(1,1,1,1);
                         drawPosition(Vec3.scale(Vec3.copy(target),0.55));
                         ctx.multMatrix(rotation);
+                        //ctx.setModelMatrix(rotation);
                         drawCube();
                     ctx.popModelMatrix();
 
                     //rotate by quaternion
                     ctx.translate(OFFSET_X);
                     ctx.pushModelMatrix();
+                        var orientation = Quat.fromMat4(Quat.create(),rotation);
                         var orientation = Quat.lookAt(Quat.create(),origin,target,Vec3.yAxis());
+                        //var orientation = Quat.setAxisAngle(Quat.create(),rotationAngle,[0,1,0]);
 
+                        drawPivotSmall();
                         draw.setColor4(1,1,1,1);
                         drawPosition(Vec3.scale(Vec3.copy(target),0.55));
                         ctx.rotateQuat(orientation);
