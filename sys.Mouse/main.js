@@ -32,6 +32,7 @@ Window.create({
         this.program = ctx.createProgram(res.showColorsVert, res.showColorsFrag);
     },
     onMouseDown: function(e) {
+        console.log('onMouseDown', e.x, e.y, e.altKey, e.shiftKey, e.ctrlKey, e.metaKey);
         this.mouseDown = true;
     },
     onMouseUp: function(e) {
