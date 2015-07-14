@@ -55,8 +55,7 @@ Window.create({
 
 
         this.camera.lookAt([Math.cos(time * 0.125 * Math.PI) * 10,10,Math.sin(time * 0.125 * Math.PI) * 10],[0,0,0]);
-        this.camera.updateViewMatrix();
-
+   
         ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
 
         ctx.setDepthTest(false);
