@@ -26,7 +26,6 @@ Window.create({
 
         this._camera  = new PerspCamera(45,this.getAspectRatio(),0.001,20.0);
         this._camera.lookAt(DEFAULT_EYE,DEFAULT_TARGET);
-        this._camera.updateViewMatrix();
 
         this._arcball = new CameraArcball(this._camera,this.getWidth(),this.getHeight());
         this._draw    = new Draw(ctx);
