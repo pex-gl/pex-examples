@@ -108,7 +108,6 @@ Window.create({
         ctx.setViewMatrix(this.view);
         Mat4.set(this.invView, this.view);
         Mat4.invert(this.invView);
-        ctx.setViewMatrix(this.view);
 
         ctx.bindTexture(this.tex, 0);
 
