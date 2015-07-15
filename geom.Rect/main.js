@@ -1,8 +1,8 @@
 var Window = require('pex-sys/Window');
-var Draw = require('pex-draw');
-var Rect = require('pex-geom/Rect');
-var Vec3 = require('pex-math/Vec3');
-var Mat4 = require('pex-math/Mat4');
+var Draw   = require('pex-draw');
+var Rect   = require('pex-geom/Rect');
+var Vec3   = require('pex-math/Vec3');
+var Mat4   = require('pex-math/Mat4');
 
 Window.create({
     settings : {
@@ -58,7 +58,7 @@ Window.create({
             createRandomPoints( 50,points[2]);
             createRandomPoints( 25,points[3]);
             for(var i = 0, l = points.length; i < l; ++i){
-                Rect.includePointsFlat(Rect.toZero(rects[i]),points[i]);
+                Rect.includePointsFlat(Rect.setEmpty(rects[i]),points[i]);
             }
         }
 
@@ -75,6 +75,9 @@ Window.create({
         }
 
         function drawBoundingRect(rect){
+            if(Rect.isEmpty(rect)){
+                return;
+            }
             ctx.pushModelMatrix();
                 ctx.translate([rect[0][0], rect[0][1], 0]);
                 draw.drawRectStroked(Rect.getWidth(rect), Rect.getHeight(rect));
