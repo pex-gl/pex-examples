@@ -1,7 +1,7 @@
 {
   "name": "pex-examples",
   "version": "1.0.0-alpha.1",
-  "description": "Examples ford the pex library",
+  "description": "Examples for the pex library",
   "homepage": "https://github.com/variablestudio/pex-examples",
   "keywords": [
     "pex",
