@@ -1,8 +1,8 @@
-var Window        = require('pex-sys/Window');
-var PerspCamera   = require('pex-cam/PerspCamera');
-var CameraArcball = require('pex-cam/CameraArcball');
-var Draw          = require('pex-draw');
-var Vec3          = require('pex-math/Vec3');
+var Window      = require('pex-sys/Window');
+var PerspCamera = require('pex-cam/PerspCamera');
+var Arcball     = require('pex-cam/Arcball');
+var Draw        = require('pex-draw');
+var Vec3        = require('pex-math/Vec3');
 
 var DEFAULT_EYE    = [0,3,-3];
 var DEFAULT_TARGET = [0,0,0];
@@ -26,7 +26,7 @@ Window.create({
         this._camera  = new PerspCamera(45,this.getAspectRatio(),0.001,20.0);
         this._camera.lookAt(DEFAULT_EYE,DEFAULT_TARGET);
 
-        this._arcball = new CameraArcball(this._camera,this.getWidth(),this.getHeight());
+        this._arcball = new Arcball(this._camera,this.getWidth(),this.getHeight());
         this._draw    = new Draw(ctx);
 
         ctx.setClearColor(0.125,0.125,0.125,1);
