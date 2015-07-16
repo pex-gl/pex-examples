@@ -1,0 +1,107 @@
+var Window      = require('pex-sys/Window');
+var Mat4        = require('pex-math/Mat4');
+var Vec3        = require('pex-math/Vec3');
+var createTorus = require('primitive-torus');
+var glslify     = require('glslify-promise');
+var GUI         = require('pex-gui');
+
+var State = {
+    scale: 1,
+    rotate: true
+}
+
+Window.create({
+    settings: {
+        type: '3d',
+        width: 800,
+        height: 600
+    },
+    resources: {
+        vert: { glsl: glslify(__dirname + '/../assets/glsl/RepeatedTexture.vert') },
+        frag: { glsl: glslify(__dirname + '/../assets/glsl/RepeatedTexture.frag') }
+    },
+    init: function() {
+        var ctx = this.getContext();
+
+        this.gui = new GUI(ctx, this.getWidth(), this.getHeight());
+        this.gui.addHeader('Settings');
+        this.gui.addParam('Scale', State, 'scale', { min: 0.1, max: 2});
+        this.gui.addParam('Rotate', State, 'rotate');
+
+        this.addEventListener(this.gui);
+
+        this.model = Mat4.create();
+        this.projection = Mat4.perspective(Mat4.create(), 45, this.getAspectRatio(), 0.001, 10.0);
+        this.view = Mat4.lookAt([], [3, 2, 2], [0, 0, 0], [0, 1, 0]);
+
+        ctx.setProjectionMatrix(this.projection);
+        ctx.setViewMatrix(this.view);
+        ctx.setModelMatrix(this.model);
+
+        var res = this.getResources();
+
+        this.program = ctx.createProgram(res.vert, res.frag);
+        ctx.bindProgram(this.program);
+        this.program.setUniform('uRepeat', [ 8, 8 ]);
+        this.program.setUniform('uTexture', 0);
+
+        var torus = createTorus();
+
+        var attributes = [
+            { data: torus.positions, location: ctx.ATTRIB_POSITION },
+            { data: torus.uvs, location: ctx.ATTRIB_TEX_COORD_0 },
+            { data: torus.normals, location: ctx.ATTRIB_NORMAL }
+        ];
+        var indices = { data: torus.cells, usage: ctx.STATIC_DRAW };
+        this.mesh = ctx.createMesh(attributes, indices);
+
+        var img = new Uint8Array([
+            0xff, 0xff, 0xff, 0xff, 0xcc, 0xcc, 0xcc, 0xff,
+            0xcc, 0xcc, 0xcc, 0xff, 0xff, 0xff, 0xff, 0xff
+        ]);
+
+        this.tex = ctx.createTexture2D(img, 2, 2, {
+          repeat: true,
+          minFilter: ctx.NEAREST,
+          magFilter: ctx.NEAREST
+        })
+    },
+    seconds: 0,
+    prevTime: Date.now(),
+    draw: function() {
+        if (!this.mesh) return;
+        var now = Date.now();
+        this.seconds += (now - this.prevTime)/1000;
+        this.prevTime = now;
+
+        var ctx = this.getContext();
+        ctx.setClearColor(0.2, 0.2, 0.2, 1);
+        ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
+        ctx.setDepthTest(true);
+
+        var time = Date.now()/1000;
+
+        if (!State.rotate) time = 0;
+
+        ctx.setViewMatrix(Mat4.lookAt9(this.view,
+                Math.cos(time * Math.PI) * 5,
+                Math.sin(time * 0.5) * 0,
+                Math.sin(time * Math.PI) * 5,
+                0,0,0,0,1,0
+            )
+        );
+
+        ctx.bindTexture(this.tex, 0);
+        ctx.bindProgram(this.program);
+
+        ctx.setViewMatrix(this.view)
+
+        ctx.bindMesh(this.mesh);
+        ctx.pushModelMatrix();
+            ctx.scale([ State.scale, State.scale, State.scale ]);
+            ctx.drawMesh();
+        ctx.popModelMatrix();
+
+        this.gui.draw();
+    }
+})
