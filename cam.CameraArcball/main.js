@@ -1,5 +1,4 @@
 var Window        = require('pex-sys/Window');
-var MouseEvent    = require('pex-sys/MouseEvent');
 var PerspCamera   = require('pex-cam/PerspCamera');
 var CameraArcball = require('pex-cam/CameraArcball');
 var Draw          = require('pex-draw');
@@ -34,25 +33,13 @@ Window.create({
         ctx.setDepthTest(true);
         ctx.setProjectionMatrix(this._camera.getProjectionMatrix());
 
-        //Hook to mouse event, no register method atm
-        var mouse = this.getMouse();
-        var self  = this;
-        mouse.addEventListener(MouseEvent.MOUSE_DOWN,function(e){
-            self._arcball.onMouseDown(e);
-        });
-        mouse.addEventListener(MouseEvent.MOUSE_DRAG,function(e){
-            self._arcball.onMouseDrag(e);
-        });
-        mouse.addEventListener(MouseEvent.MOUSE_SCROLL,function(e){
-            self._arcball.onMouseScroll(e);
-        });
-        //Add
-        //this.addEventListener(WindowEvent.RESIZE,function(e){
-        //    self._arcball.onWindowResize(e);
-        //})
-        //var keyboard = this.getKeyboard();
+        this.addEventListener(this._arcball);
     },
-    onKeyDown : function(e){
+    onKeyPress : function(e){
+        if(e.str == ' '){
+            this._arcball.resetPanning();
+            return;
+        }
         switch (+e.str){
             case 1:
                 this._arcball.setLookDirection([1,0,0]);
@@ -77,7 +64,6 @@ Window.create({
 
         if(!this._arcball.isEnabled()){
             this._camera.lookAt(DEFAULT_EYE,DEFAULT_TARGET,[0,1,0]);
-            this._camera.updateViewMatrix();
         }
         else{
             this._arcball.apply();
@@ -87,7 +73,7 @@ Window.create({
 
         ctx.setViewMatrix(this._camera.getViewMatrix());
         draw.drawPivotAxes();
-        draw.drawCubeColored();
+        draw.drawCubeColored(0.25);
 
         draw.drawArcball(this._arcball,true);
     }
