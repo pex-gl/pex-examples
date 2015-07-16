@@ -98,7 +98,7 @@ Window.create({
             draw.drawGrid([windowWidth,windowWidth],40);
         ctx.popModelMatrix();
 
-        if(elapsedFrames == 0 || (elapsedFrames % 10 == 0)){
+        if(elapsedFrames == 0 || (elapsedFrames % 30 == 0)){
             updatePoints();
         }
 
@@ -125,5 +125,25 @@ Window.create({
         var rectAll = Rect.createFromRects(rects);
         draw.setColor4(1, 1, 1, 1);
         drawBoundingRect(rectAll);
+
+
+        var mousePosition = this.getMouse().getPos();
+        mousePosition[0] -= windowWidth * 0.5;
+        mousePosition[1] -= windowHeight * 0.5;
+
+        var mouseIsInside = Rect.containsPoint(rectAll,mousePosition);
+
+        draw.setColor4(1,0,0,1);
+        ctx.pushModelMatrix();
+            ctx.translate([mousePosition[0],mousePosition[1],0]);
+            draw.drawCircle(5);
+        ctx.popModelMatrix();
+
+        ctx.pushModelMatrix();
+            draw.setColor(mouseIsInside ? [1,1,1,1] : [1,0,0,1]);
+            var clamped = Rect.clampPoint(rectAll,[mousePosition[0],mousePosition[1]]);
+            ctx.translate([clamped[0],clamped[1],0]);
+            draw.drawCircleStroked(10);
+        ctx.popModelMatrix();
     }
 });
