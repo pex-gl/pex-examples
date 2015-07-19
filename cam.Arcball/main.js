@@ -36,7 +36,7 @@ Window.create({
     onKeyPress : function(e){
         switch (e.str){
             case ' ':
-                this._arcballState.resetPanning();
+                this._arcball.resetPanning();
                 break;
             case 's':
                 this._arcballState = this._arcball.getState();
