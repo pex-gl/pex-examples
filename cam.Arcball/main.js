@@ -2,10 +2,6 @@ var Window      = require('pex-sys/Window');
 var PerspCamera = require('pex-cam/PerspCamera');
 var Arcball     = require('pex-cam/Arcball');
 var Draw        = require('pex-draw');
-var Vec3        = require('pex-math/Vec3');
-
-var DEFAULT_EYE    = [0,3,-3];
-var DEFAULT_TARGET = [0,0,0];
 
 Window.create({
     settings : {
@@ -24,10 +20,12 @@ Window.create({
         ctx.bindProgram(this._program);
 
         this._camera  = new PerspCamera(45,this.getAspectRatio(),0.001,20.0);
-        this._camera.lookAt(DEFAULT_EYE,DEFAULT_TARGET);
+        this._camera.lookAt([3,3,3],[0,0,0]);
 
         this._arcball = new Arcball(this._camera,this.getWidth(),this.getHeight());
-        this._draw    = new Draw(ctx);
+        this._arcballState = this._arcball.getState();
+
+        this._draw = new Draw(ctx);
 
         ctx.setClearColor(0.125,0.125,0.125,1);
         ctx.setDepthTest(true);
@@ -36,10 +34,18 @@ Window.create({
         this.addEventListener(this._arcball);
     },
     onKeyPress : function(e){
-        if(e.str == ' '){
-            this._arcball.resetPanning();
-            return;
+        switch (e.str){
+            case ' ':
+                this._arcballState.resetPanning();
+                break;
+            case 's':
+                this._arcballState = this._arcball.getState();
+                break;
+            case 'l':
+                this._arcball.setState(this._arcballState);
+                break;
         }
+
         switch (+e.str){
             case 1:
                 this._arcball.setLookDirection([1,0,0]);
@@ -62,19 +68,16 @@ Window.create({
         var ctx  = this.getContext();
         var draw = this._draw;
 
-        if(!this._arcball.isEnabled()){
-            this._camera.lookAt(DEFAULT_EYE,DEFAULT_TARGET,[0,1,0]);
-        }
-        else{
-            this._arcball.apply();
-        }
-
         ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
 
+        this._arcball.apply();
         ctx.setViewMatrix(this._camera.getViewMatrix());
-        draw.drawPivotAxes();
-        draw.drawCubeColored(0.25);
 
-        draw.drawArcball(this._arcball,true);
+        ctx.pushModelMatrix();
+            ctx.scale([0.5,0.125,0.5]);
+            draw.drawCubeColored();
+        ctx.popModelMatrix();
+
+        draw.debugArcball(this._arcball,true);
     }
 });
