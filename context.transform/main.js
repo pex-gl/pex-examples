@@ -47,7 +47,7 @@ Window.create({
             [0,0,0],
             [0,1,0]
         );
-        camera.updateViewMatrix();
+
         ctx.setViewMatrix(camera.getViewMatrix());
 
         ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
