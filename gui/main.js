@@ -12,7 +12,8 @@ var State = {
     rotation: [0,0,0],
     bgColor: [0.92, 0.2, 0.2, 1.0],
     textures: [],
-    currentTexture: 0
+    currentTexture: 0,
+    text: 'test message'
 };
 
 Window.create({
@@ -43,6 +44,10 @@ Window.create({
         this.gui.addHeader('Color');
         this.gui.addParam('BG Color [RGBA]', State, 'bgColor');
         this.gui.addParam('BG Color [HSB]', State, 'bgColor', { type: 'color', palette: res.palette });
+        this.gui.addSeparator();
+        this.gui.addParam('Test message', State, 'text', {}, function(e) {
+            console.log('New text: ', e);
+        }).setPosition(180, 10)
 
         this.addEventListener(this.gui);
 
