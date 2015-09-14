@@ -2,7 +2,7 @@
   "name": "pex-examples",
   "version": "1.0.0-alpha.1",
   "description": "Examples for the pex library",
-  "homepage": "https://github.com/variablestudio/pex-examples",
+  "homepage": "https://github.com/pex-gl/pex-examples",
   "keywords": [
     "pex",
     "geometry",
@@ -29,12 +29,14 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/variablestudio/pex-examples.git"
+    "url": "https://github.com/pex-gl/pex-examples.git"
   },
-  "bugs": "https://github.com/variablestudio/pex-examples/issues",
+  "bugs": "https://github.com/pex-gl/pex-examples/issues",
   "license": "MIT",
   "dependencies": {
     "glslify-promise": "^1.0.1",
+    "primitive-cube": "^1.0.2",
+    "primitive-sphere": "^2.0.0",
     "primitive-torus": "^1.0.4",
     "variablestudio/pex-context": "*",
     "variablestudio/pex-io": "*",
