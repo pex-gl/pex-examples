@@ -106,13 +106,10 @@ Window.create({
             0,0,0,0,1,0
         );
         ctx.setViewMatrix(this.view);
-        Mat4.set(this.invView, this.view);
-        Mat4.invert(this.invView);
 
         ctx.bindTexture(this.tex, 0);
 
         ctx.bindProgram(this.reflectionProgram);
-        this.reflectionProgram.setUniform('uInvViewMatrix', this.invView);
         ctx.bindMesh(this.torusMesh);
         ctx.drawMesh();
 
