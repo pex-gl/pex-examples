@@ -11,12 +11,17 @@ var loadBinary  = require('pex-io/loadBinary');
 var PerspCamera = require('pex-cam/PerspCamera');
 var Arcball     = require('pex-cam/Arcball');
 var Draw        = require('pex-draw');
+var GUI         = require('pex-gui');
+var isBrowser   = require('is-browser');
+
+var CUBEMAP_SIZE = 512;
 
 Window.create({
     settings: {
         width: 1280,
         height: 720,
-        type: '3d'
+        type: '3d',
+        fullscreen: isBrowser
     },
     resources: {
         reflectionVert: { glsl: glslify(__dirname + '/../assets/glsl/CubemapReflection.vert') },
@@ -28,6 +33,9 @@ Window.create({
     },
     init: function() {
         var ctx = this.getContext();
+
+        this.gui = new GUI(ctx, this.getWidth(), this.getHeight());
+        this.addEventListener(this.gui);
 
         this.camera  = new PerspCamera(45,this.getAspectRatio(),0.001,20.0);
         this.camera.lookAt([5,5,5],[0,0,0]);
@@ -68,16 +76,69 @@ Window.create({
         this.cubeMesh = ctx.createMesh(cubeAttributes, cubeIndices);
 
         this.cubeInstances = [
-            { position: [ 3, 0, 0], scale: [1.0, 1.0, 1.0], color: [1, 0, 0, 1]},
-            { position: [-3, 0, 0], scale: [1.0, 1.0, 1.0], color: [1, 0.5, 0, 1]},
-            { position: [ 0, 3, 0], scale: [1.0, 1.0, 1.0], color: [0, 1, 0, 1]},
-            { position: [ 0,-3, 0], scale: [0.5, 0.5, 0.5], color: [0, 1, 0.5, 1]},
-            { position: [ 0, 0, 3], scale: [0.5, 0.5, 0.5], color: [0, 0, 1, 1]},
-            { position: [ 0, 0,-3], scale: [0.5, 0.5, 0.5], color: [0.5, 0, 1, 1]}
-        ]
+            { position: [ 3, 0, 0], scale: 1.0, color: [1.0, 0.0, 0.0, 1.0]},
+            { position: [-3, 0, 0], scale: 1.0, color: [1.0, 0.5, 0.0, 1.0]},
+            { position: [ 0, 3, 0], scale: 1.0, color: [0.0, 1.0, 0.0, 1.0]},
+            { position: [ 0,-3, 0], scale: 0.5, color: [0.0, 1.0, 0.5, 1.0]},
+            { position: [ 0, 0, 3], scale: 0.5, color: [0.0, 0.0, 1.0, 1.0]},
+            { position: [ 0, 0,-3], scale: 0.5, color: [0.5, 0.0, 1.0, 1.0]}
+        ];
+
+        this.reflectionMap = ctx.createTextureCube(null, CUBEMAP_SIZE, CUBEMAP_SIZE);
+        this.fbo = ctx.createFramebuffer();
+
+        this.cubeMapProjection = Mat4.perspective(Mat4.create(), 45, 1, 0.001, 50.0);
+        this.cubeMapView = Mat4.lookAt([], [0, 0, 0], [1, 0, 0], [0, 1, 0]);
     },
     seconds: 0,
     prevTime: Date.now(),
+    updateCubemap: function() {
+        var ctx = this.getContext();
+
+        var sides = [
+            { bg: [1.0, 0.0, 0.0, 1.0], bg: [1.0/10, 0.0/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [ 1, 0, 0], up: [0, 1, 0] },
+            { bg: [1.0, 0.5, 0.0, 1.0], bg: [1.0/10, 0.5/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [-1, 0, 0], up: [0, 1, 0] },
+            { bg: [0.0, 1.0, 0.0, 1.0], bg: [0.0/10, 1.0/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [0,  1, 0], up: [0, 0, 1] },
+            { bg: [0.0, 1.0, 0.5, 1.0], bg: [0.0/10, 1.0/10, 0.5/10, 1.0], eye: [0, 0, 0], target: [0, -1, 0], up: [0, 0, 1] },
+            { bg: [0.0, 0.0, 1.0, 1.0], bg: [0.0/10, 0.0/10, 1.0/10, 1.0], eye: [0, 0, 0], target: [0, 0,  1], up: [0, 1, 0] },
+            { bg: [0.5, 0.0, 1.0, 1.0], bg: [0.5/10, 0.0/10, 1.0/10, 1.0], eye: [0, 0, 0], target: [0, 0, -1], up: [0, 1, 0] },
+        ]
+
+        var gl = ctx.getGL();
+
+        ctx.pushState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT);
+        ctx.setViewport(0, 0, CUBEMAP_SIZE, CUBEMAP_SIZE);
+        ctx.bindFramebuffer(this.fbo);
+        ctx.setProjectionMatrix(this.cubeMapProjection);
+        sides.forEach(function(side, sideIndex) {
+            this.fbo.setColorAttachment(0, ctx.TEXTURE_CUBE_MAP_POSITIVE_X + sideIndex, this.reflectionMap.getHandle(), 0);
+            ctx.setClearColor(side.bg[0], side.bg[1], side.bg[2], side.bg[3]);
+            ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
+            Mat4.lookAt(this.cubeMapView, side.eye, side.target, side.up);
+            ctx.setViewMatrix(this.cubeMapView);
+            this.drawScene();
+        }.bind(this))
+        ctx.popState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT);
+    },
+    drawScene: function() {
+        var ctx = this.getContext();
+        ctx.bindProgram(this.solidColorProgram);
+        var solidColorProgram = this.solidColorProgram;
+        ctx.bindMesh(this.cubeMesh);
+
+        var tmp = this.tmp = this.tmp || [0, 0, 0];
+        var t = this.getTime().getElapsedSeconds();
+        this.cubeInstances.forEach(function(instance, i) {
+            solidColorProgram.setUniform('uColor', instance.color);
+            ctx.pushModelMatrix();
+            ctx.translate(instance.position);
+            var s = instance.scale + 0.5 * Math.sin(t*2 + i);
+            Vec3.set3(tmp, s, s, s);
+            ctx.scale(tmp);
+            ctx.drawMesh();
+            ctx.popModelMatrix();
+        })
+    },
     draw: function() {
         var now = Date.now();
         this.seconds += (now - this.prevTime)/1000;
@@ -88,29 +149,20 @@ Window.create({
         ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
         ctx.setDepthTest(true);
 
+        this.updateCubemap();
+
         this.arcball.apply();
         ctx.setViewMatrix(this.camera.getViewMatrix());
 
-        ctx.bindTexture(this.tex, 0);
+        ctx.bindTexture(this.reflectionMap, 0);
 
         ctx.bindProgram(this.reflectionProgram);
         ctx.bindMesh(this.torusMesh);
         ctx.drawMesh();
 
-        ctx.bindProgram(this.solidColorProgram);
-
-        var solidColorProgram = this.solidColorProgram;
-        ctx.bindMesh(this.cubeMesh);
-        this.cubeInstances.forEach(function(instance) {
-            solidColorProgram.setUniform('uColor', instance.color);
-            ctx.pushModelMatrix();
-            ctx.translate(instance.position);
-            ctx.scale(instance.scale);
-            ctx.drawMesh();
-            ctx.popModelMatrix();
-        })
+        this.drawScene();
 
         ctx.bindProgram(this.showColorsProgram);
-        this.debugDraw.drawPivotAxes(2)
+        this.debugDraw.drawPivotAxes(2);
     }
 })
