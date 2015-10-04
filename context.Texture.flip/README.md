@@ -48,7 +48,7 @@ Coordinate space:
 ```
 
 Therefore:
-- when using cubemaps not prepared for OpenGL (most of what you find on the web) you need to ** negate Z component** of the `R` vector that you use sample the cubemap e.g.
+- when using cubemaps not prepared for OpenGL (most of what you find on the web) you need to **negate Z component** of the `R` vector that you use sample the cubemap e.g.
 
 ```glsl
 vec3 N = normalize(vNormal);
