@@ -20,6 +20,8 @@ uniform float uFlipZ;
  * @description Based on http://http.developer.nvidia.com/GPUGems/gpugems_ch17.html and http://gl.ict.usc.edu/Data/HighResProbes/
  */
 vec4 texture2DEnvLatLong(sampler2D envMap, vec3 wcNormal, float flipEnvMap) {
+    //I assume envMap texture has been flipped the WebGL way (pixel 0,0 is a the bottom)
+    //So top was at 0,0 and now is at 0,1 therefore we flip wcNorma.y as acos(1) = 0 but we want 1
     float phi = acos(-wcNormal.y);
     float theta = atan(wcNormal.x, flipEnvMap * wcNormal.z) + PI;
     vec2 texCoord = vec2(theta / TwoPI, phi / PI);
