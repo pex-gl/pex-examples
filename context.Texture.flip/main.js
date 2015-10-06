@@ -37,20 +37,20 @@ function renderToCubemap(ctx, cubemap, drawScene, level) {
         viewMatrix = Mat4.create();
     }
 
-    ctx.pushState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT | ctx.COLOR_BIT);
+    ctx.pushState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT | ctx.MATRIX_MODEL_BIT | ctx.COLOR_BIT);
     ctx.setViewport(0, 0, cubemap.getWidth(), cubemap.getHeight());
     ctx.bindFramebuffer(fbo);
     ctx.setProjectionMatrix(projectionMatrix);
+    ctx.scale([-1, 1, 1]);
     sides.forEach(function(side, sideIndex) {
         fbo.setColorAttachment(0, ctx.TEXTURE_CUBE_MAP_POSITIVE_X + sideIndex, cubemap.getHandle(), level);
         ctx.setClearColor(side.color[0], side.color[1], side.color[2], 1);
-        //ctx.setClearColor(0, 0, 0, 1);
         ctx.clear(ctx.COLOR_BIT | ctx.DEPTH_BIT);
         Mat4.lookAt(viewMatrix, side.eye, side.target, side.up);
         ctx.setViewMatrix(viewMatrix);
         drawScene();
     })
-    ctx.popState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT | ctx.COLOR_BIT);
+    ctx.popState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT | ctx.MATRIX_MODEL_BIT  | ctx.COLOR_BIT);
 }
 
 Window.create({
@@ -91,9 +91,9 @@ Window.create({
         ], { data: faces });
 
         var res = this.getResources();
-        this.pisaTex = ctx.createTexture2D(res.envMap_pz, res.envMap_pz.width, res.envMap_pz.height, { flip: true })
-        this.pisaPreviewTex = ctx.createTexture2D(res.pisaPreview, res.pisaPreview.width, res.pisaPreview.height, { flip: true })
-        this.varTex = ctx.createTexture2D(res.var, res.var.width, res.var.height, { flip: true });
+        this.pisaTex = ctx.createTexture2D(res.envMap_pz)
+        this.pisaPreviewTex = ctx.createTexture2D(res.pisaPreview)
+        this.varTex = ctx.createTexture2D(res.var);
         this.envMap = ctx.createTextureCube([
             { face: 0, data: res.envMap_px },
             { face: 1, data: res.envMap_nx },
@@ -131,7 +131,7 @@ Window.create({
         this.gui.addTexture2D('FBO', this.fboTex);
         this.gui.addTexture2DList('Textures', { textureIndex: 0}, 'textureIndex', [ { texture: this.pisaTex }, { texture: this.varTex }, { texture: this.fboTex }], 3);
         this.gui.addTexture2D('envMap panorama', this.pisaPreviewTex).setPosition(180, 10);
-        this.gui.addTextureCube('envMap', this.envMap, { flipZ: -1});
+        this.gui.addTextureCube('envMap', this.envMap);
         this.gui.addTextureCube('live envMap', this.liveEnvMap)
 
         this.gui.addLabel('TexCoords').setPosition(w*1.2/4, 10);
@@ -180,6 +180,7 @@ Window.create({
         ctx.setLineWidth(5);
 
         ctx.bindProgram(this.skyboxProgram);
+        this.skyboxProgram.setUniform('uReflectionMap', 0);
         ctx.bindTexture(this.envMap, 0);
         ctx.pushModelMatrix();
         this.debugDraw.setColor([1,1,1,1]);
@@ -190,19 +191,19 @@ Window.create({
         ctx.bindProgram(this.showColorsProgram);
 
         ctx.pushModelMatrix();
-        this.debugDraw.setColor([1,0,0,1]);
+        this.debugDraw.setColor([0.8,0,0,1]);
         ctx.translate([2, 0, 0]);
         this.debugDraw.drawCube();
         ctx.popModelMatrix();
 
         ctx.pushModelMatrix();
-        this.debugDraw.setColor([0,1,0,1]);
+        this.debugDraw.setColor([0,0.8,0,1]);
         ctx.translate([0, 2, 0]);
         this.debugDraw.drawCube(1);
         ctx.popModelMatrix();
 
         ctx.pushModelMatrix();
-        this.debugDraw.setColor([0,0,1,1]);
+        this.debugDraw.setColor([0,0,0.8,1]);
         ctx.translate([0, 0, 2]);
         this.debugDraw.drawCube();
         ctx.popModelMatrix();
@@ -253,25 +254,28 @@ Window.create({
         ctx.setViewport(w*3/4, h*2/3, w/4, h/3);
         ctx.bindProgram(this.skyboxEnvMapProgram);
         this.skyboxEnvMapProgram.setUniform('uReflectionEnvMap', 0);
-        this.skyboxEnvMapProgram.setUniform('uFlipZ', -1.0);
         ctx.bindTexture(this.pisaPreviewTex);
-        this.debugDraw.drawCube(20);
+        this.debugDraw.drawCube(10);
+        ctx.bindProgram(this.showColorsProgram);
+        this.debugDraw.drawPivotAxes();
 
         ctx.setViewport(w*3/4, h/3, w/4, h/3);
         ctx.bindProgram(this.skyboxProgram);
         this.skyboxProgram.setUniform('uReflectionMap', 0);
-        this.skyboxProgram.setUniform('uFlipZ', -1.0);
         ctx.bindTexture(this.envMap);
-        this.debugDraw.drawCube(20);
+        this.debugDraw.drawCube(10);
+        ctx.bindProgram(this.showColorsProgram);
+        this.debugDraw.drawPivotAxes();
 
         renderToCubemap(ctx, this.liveEnvMap, this.drawSceneWithSkybox.bind(this), 0);
 
         ctx.setViewport(w*3/4, 0, w/4, h/3);
         ctx.bindProgram(this.skyboxProgram);
         this.skyboxProgram.setUniform('uReflectionMap', 0);
-        this.skyboxProgram.setUniform('uFlipZ', 1.0);
         ctx.bindTexture(this.liveEnvMap);
-        this.debugDraw.drawCube(20);
+        this.debugDraw.drawCube(10);
+        ctx.bindProgram(this.showColorsProgram);
+        this.debugDraw.drawPivotAxes();
 
         //TODO:
         //envmap panorama
