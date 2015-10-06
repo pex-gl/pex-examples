@@ -2,15 +2,17 @@ var Window      = require('pex-sys/Window');
 var PerspCamera = require('pex-cam/PerspCamera');
 var Arcball     = require('pex-cam/Arcball');
 var Draw        = require('pex-draw');
+var glslify     = require('glslify-promise');
 
 Window.create({
     settings : {
         width  : 800,
-        height : 600
+        height : 600,
+        fullscreen: typeof(document) != 'undefined'
     },
     resources : {
-        vert : {text : __dirname + '/../assets/glsl/ShowColors.vert' },
-        frag : {text : __dirname + '/../assets/glsl/ShowColors.frag' }
+        vert : {glsl : glslify(__dirname + '/../assets/glsl/ShowColors.vert') },
+        frag : {glsl : glslify(__dirname + '/../assets/glsl/ShowColors.frag') }
     },
     init : function(){
         var ctx       = this.getContext();
@@ -20,7 +22,7 @@ Window.create({
         ctx.bindProgram(this._program);
 
         this._camera  = new PerspCamera(45,this.getAspectRatio(),0.001,20.0);
-        this._camera.lookAt([3,3,3],[0,0,0]);
+        this._camera.lookAt([1,1,1],[0,0,0]);
 
         this._arcball = new Arcball(this._camera,this.getWidth(),this.getHeight());
         this._arcballState = this._arcball.getState();
