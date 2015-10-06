@@ -4,10 +4,11 @@ var Window      = require('pex-sys/Window');
 var Mat4        = require('pex-math/Mat4');
 var Vec3        = require('pex-math/Vec3');
 var createTorus = require('primitive-torus');
-var createCube  = require('./primitive-cube');
+var createCube  = require('primitive-cube');
 var glslify     = require('glslify-promise');
 var parseDDS    = require('./parse-dds');
 var loadBinary  = require('pex-io/loadBinary');
+var GUI         = require('pex-gui');
 
 Window.create({
     settings: {
@@ -25,6 +26,8 @@ Window.create({
     },
     init: function() {
         var ctx = this.getContext();
+
+        this.gui = new GUI(ctx, this.getWidth(), this.getHeight());
 
         this.model = Mat4.create();
         this.projection = Mat4.perspective(Mat4.create(), 60, this.getAspectRatio(), 0.001, 50.0);
@@ -83,6 +86,7 @@ Window.create({
             }
         })
         this.tex = ctx.createTextureCube(faces, faces[0].width, faces[0].height, { type: ctx.FLOAT });
+        this.gui.addTextureCube('EnvMap', this.tex);
     },
     seconds: 0,
     prevTime: Date.now(),
@@ -116,5 +120,7 @@ Window.create({
         ctx.bindProgram(this.skyboxProgram);
         ctx.bindMesh(this.skyboxMesh);
         ctx.drawMesh();
+
+        this.gui.draw();
     }
 })
