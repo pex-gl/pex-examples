@@ -46,5 +46,8 @@
   "devDependencies": {
     "beefy": "^2.1.5",
     "browserify": "^10.2.4"
+  },
+  "scripts": {
+      "example" : "beefy context.createMesh/main.js  --open -- -i plask -t glslify-promise/transform"
   }
 }
