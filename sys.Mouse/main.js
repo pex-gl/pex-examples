@@ -28,7 +28,7 @@ Window.create({
         this.camera = new OrthoCamera(this.getWidth(), this.getHeight())
         this.camera.setOrtho(0, this.getWidth(), this.getHeight(), 0, -10, 10);
 
-        this.draw = new Draw(ctx);
+        this._draw = new Draw(ctx);
         this.program = ctx.createProgram(res.showColorsVert, res.showColorsFrag);
     },
     onMouseDown: function(e) {
@@ -64,8 +64,8 @@ Window.create({
         ctx.bindProgram(this.program);
         ctx.pushModelMatrix();
         ctx.translate([this.mousePos[0] - size/2, this.mousePos[1] - size/2, 0]);
-        this.draw.setColor(this.mouseDown ? this.mouseDownColor : this.mouseColor)
-        this.draw.drawRect(size, size);
+        this._draw.setColor(this.mouseDown ? this.mouseDownColor : this.mouseColor)
+        this._draw.drawRect(size, size);
         ctx.popModelMatrix();
     }
 })
