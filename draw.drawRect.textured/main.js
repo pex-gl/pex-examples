@@ -30,7 +30,7 @@ Window.create({
         this.camera = new OrthoCamera(this.getWidth(), this.getHeight())
         this.camera.setOrtho(0, this.getWidth(), this.getHeight(), 0, -10, 10);
 
-        this.draw = new Draw(ctx);
+        this._draw = new Draw(ctx);
         this.program = ctx.createProgram(res.showColorsVert, res.showColorsFrag);
         this.texture = ctx.createTexture2D(res.plaskImage);
 
@@ -60,11 +60,11 @@ Window.create({
         ctx.bindTexture(this.texture);
         ctx.bindProgram(this.program);
         ctx.pushModelMatrix();
-        this.draw.setColor([1, 1, 1, 1]);
+        this._draw.setColor([1, 1, 1, 1]);
         this.rectangles.forEach(function(rect) {
             ctx.pushModelMatrix();
             ctx.translate([rect[0][0], rect[0][1], 0]);
-            this.draw.drawRect(rect[1][0] - rect[0][0], rect[1][1] - rect[0][1]);
+            this._draw.drawRect(rect[1][0] - rect[0][0], rect[1][1] - rect[0][1]);
             ctx.popModelMatrix();
         }.bind(this))
 
