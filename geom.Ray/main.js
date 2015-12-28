@@ -4,6 +4,7 @@ var Draw        = require('pex-draw');
 var Vec3        = require('pex-math/Vec3');
 var Plane       = require('pex-geom/Plane');
 var Ray         = require('pex-geom/Ray');
+var glslify     = require('glslify-promise');
 
 Window.create({
     settings : {
@@ -11,8 +12,8 @@ Window.create({
         height : 600
     },
     resources : {
-        vert : {text : '../assets/glsl/ShowColors.vert' },
-        frag : {text : '../assets/glsl/ShowColors.frag' }
+        vert : { glsl : glslify(__dirname + '/../assets/glsl/ShowColors.vert') },
+        frag : { glsl : glslify(__dirname + '/../assets/glsl/ShowColors.frag') }
     },
     init : function(){
         var ctx       = this.getContext();

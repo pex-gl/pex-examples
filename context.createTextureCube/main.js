@@ -10,6 +10,9 @@ var parseDDS    = require('./parse-dds');
 var loadBinary  = require('pex-io/loadBinary');
 var GUI         = require('pex-gui');
 
+var isBrowser = require('is-browser');
+var ASSET_PATH = isBrowser ? '../assets' : __dirname + '/../assets';
+
 Window.create({
     settings: {
         width: 1280,
@@ -22,7 +25,7 @@ Window.create({
         reflectionVert: { glsl: glslify(__dirname + '/../assets/glsl/CubemapReflection.vert') },
         reflectionFrag: { glsl: glslify(__dirname + '/../assets/glsl/CubemapReflection.frag') },
         //ddsCubemap: { binary: __dirname + '/../assets/cubemaps/ForestReflection.dds' }
-        ddsCubemap: { binary: __dirname + '/../assets/cubemaps/hamarikyu_bridge_cube_pmrem32f.dds' }
+        ddsCubemap: { binary: ASSET_PATH + '/cubemaps/hamarikyu_bridge_cube_pmrem32f.dds' }
     },
     init: function() {
         var ctx = this.getContext();

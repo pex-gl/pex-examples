@@ -1,8 +1,11 @@
 var ResourceLoader = require('pex-sys/ResourceLoader');
+var isBrowser = require('is-browser');
+
+var ASSET_PATH = isBrowser ? '../assets' : __dirname + '/../assets';
 
 var validResources = {
-    icon  : { image: '../assets/textures/plask.png' },
-    data  : { json: '../assets/text/loremipsum.json' }
+    icon  : { image: ASSET_PATH + '/textures/plask.png' },
+    data  : { json: ASSET_PATH + '/text/loremipsum.json' }
 };
 
 var invalidResources = {

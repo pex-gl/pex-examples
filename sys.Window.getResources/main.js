@@ -1,6 +1,11 @@
 var Window = require('pex-sys/Window');
 var glslify = require('glslify-promise');
 
+var isBrowser = require('is-browser');
+
+var ASSET_PATH = isBrowser ? '../assets' : __dirname + '/../assets';
+
+
 Window.create({
     settings: {
         width: 1280,
@@ -10,10 +15,10 @@ Window.create({
     //TODO: it's tempting to include some kind of CWD (current working directory) support so we don't need to ASSETS_PATH = isBorwser ? 'assets' : __dirname + '/assets/'
     //TODO: check if glslify still works if we don't use __dirname but ASSETS_PATH
     resources: {
-        plaskIcon  : { image: '../assets/textures/plask.png' },
+        plaskIcon  : { image: ASSET_PATH + '/textures/plask.png' },
         basicVert  : { glsl: glslify(__dirname + '/../assets/glsl/Basic.vert') },
         basicFrag  : { glsl: glslify(__dirname + '/../assets/glsl/Basic.frag') },
-        data       : { json: '../assets/text/data.json' }
+        data       : { json: ASSET_PATH + '/text/data.json' }
     },
     init: function() {
         var res = this.getResources();
