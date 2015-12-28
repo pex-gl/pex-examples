@@ -5,12 +5,13 @@ var Mat4        = require('pex-math/Mat4');
 var Vec3        = require('pex-math/Vec3');
 var createTorus = require('primitive-torus');
 var glslify     = require('glslify-promise');
+var isBrowser   = require('is-browser');
 
 Window.create({
     settings: {
-        type: '3d',
         width: 800,
-        height: 600
+        height: 600,
+        fullScreen: isBrowser
     },
     resources: {
         vert: { glsl: glslify(__dirname + '/../assets/glsl/RepeatedTexture.vert') },
@@ -18,6 +19,11 @@ Window.create({
     },
     init: function() {
         var ctx = this.getContext();
+
+        if (isBrowser) {
+            //normally you would do it with CSS
+            document.body.style.margin = '0';
+        }
 
         this.model = Mat4.create();
         this.projection = Mat4.perspective(Mat4.create(), 45, this.getAspectRatio(), 0.001, 10.0);
