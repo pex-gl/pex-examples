@@ -2,3 +2,4 @@
 node_modules/
 old/
 .atom-build.json
+npm-debug.log
