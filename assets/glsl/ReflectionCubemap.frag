@@ -4,12 +4,11 @@ precision highp float;
 
 uniform mat4 uInverseViewMatrix;
 uniform samplerCube uReflectionMap;
-
+uniform float uReflectionMapFlipEnvMap;
 varying vec3 ecPosition;
 varying vec3 ecNormal;
 
-vec4 textureCubeEnvMap(samplerCube envMap, vec3 N) {
-    const float flipEnvMap = -1.0;
+vec4 textureCubeEnvMap(samplerCube envMap, vec3 N, float flipEnvMap) {
     N.x *= flipEnvMap;
     return textureCube(uReflectionMap, N);
 }
@@ -21,7 +20,7 @@ void main() {
 
     vec3 reflectionWorld = reflect(-wcEyeDir, normalize(wcNormal)); //eye coordinates reflection vector
 
-    vec4 color = textureCubeEnvMap(uReflectionMap, reflectionWorld);
+    vec4 color = textureCubeEnvMap(uReflectionMap, reflectionWorld, uReflectionMapFlipEnvMap);
 
     //gl_FragColor = vec4(ecNormal * 0.5 + 0.5, 1.0);
     gl_FragColor = color;

@@ -74,6 +74,14 @@ vec4 texture2DEnvLatLong(sampler2D envMap, vec3 wcNormal, float flipEnvMap) {
 }
 ```
 
+Rules of thumb:
+- 2d envmap : FLIP
+- 3d cubemap from 6  files: FLIP
+- 3d cubemap from 1 dds file: FLIP
+- 3d cubemap from 2d envmap: FLIP
+- 3d cubemap from 3d cubemap (e.g. downsampling) : NO FLIP
+- 3d cubemap from live gl scene (render target): NO FLIP //i was flipping here before causing problems in GUI and reflections
+
 ## Notes
 
 ThreeJS negates normal.X unless cubemap is a RenderTarget
