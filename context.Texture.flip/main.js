@@ -200,14 +200,16 @@ Window.create({
 
         ctx.bindProgram(this.skyboxCubemapProgram);
         this.skyboxCubemapProgram.setUniform('uReflectionMap', 0);
+        this.skyboxCubemapProgram.setUniform('uReflectionMapFlipEnvMap', -1);
         ctx.bindTexture(this.envMap, 0);
         ctx.pushModelMatrix();
         this.debugDraw.setColor([1,1,1,1]);
         this.debugDraw.drawCube(100);
+
+        ctx.bindProgram(this.showColorsProgram);
         this.debugDraw.drawPivotAxes(1);
         ctx.popModelMatrix();
 
-        ctx.bindProgram(this.showColorsProgram);
 
         ctx.pushModelMatrix();
         this.debugDraw.setColor([0.8,0,0,1]);
@@ -318,23 +320,22 @@ Window.create({
             this.drawSceneWithSkybox()
         }
         else {
-            ctx.bindTexture(this.liveEnvMap);
+            ctx.bindTexture(this.liveEnvMap, 0);
             ctx.bindProgram(this.skyboxCubemapProgram);
             this.skyboxCubemapProgram.setUniform('uReflectionMap', 0);
             this.skyboxCubemapProgram.setUniform('uReflectionMapFlipEnvMap', 1);
             this.debugDraw.drawCube(100);
+            ctx.bindProgram(this.showColorsProgram);
+            this.debugDraw.drawPivotAxes();
         }
-        ctx.bindProgram(this.showColorsProgram);
-        this.debugDraw.drawPivotAxes();
+
+        ctx.bindTexture(this.liveEnvMap, 0);
         ctx.bindProgram(this.reflectionCubemap);
         this.reflectionCubemap.setUniform('uReflectionMap', 0);
         this.reflectionCubemap.setUniform('uReflectionMapFlipEnvMap', 1);
         ctx.bindMesh(this.sphereMesh);
         ctx.drawMesh();
         ctx.setScissorTest(false)
-
-        //TODO:
-        //envmap panorama
 
         ctx.setViewport(0, 0, this.getWidth(), this.getHeight());
         this.gui.draw();
