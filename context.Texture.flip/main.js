@@ -12,10 +12,6 @@ var GUI = require('pex-gui');
 var ASSETS_DIR = isBrowser ? '../assets' :  __dirname + '/../assets';
 
 
-if (isBrowser) {
-    FRAG = 'precision highp float;' + '\n' + FRAG;
-}
-
 //Flipping up by -1 inspired by http://www.mbroecker.com/project_dynamic_cubemaps.html
 var sides = [
     { eye: [0, 0, 0], target: [ 1, 0, 0], up: [0, -1,  0], color: [0, 0, 0, 1] },
@@ -63,12 +59,12 @@ Window.create({
         reflectionCubemapFrag: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionCubemap.frag') },
         reflectionEquirectVert: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionEquirect.vert') },
         reflectionEquirectFrag: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionEquirect.frag') },
-        texturedVert: { glsl: glslify(ASSETS_DIR + '/glsl/Textured.vert')},
-        texturedFrag: { glsl: glslify(ASSETS_DIR + '/glsl/Textured.frag')},
-        showTexCoordsVert: { glsl: glslify(ASSETS_DIR + '/glsl/ShowTexCoords.vert')},
-        showTexCoordsFrag: { glsl: glslify(ASSETS_DIR + '/glsl/ShowTexCoords.frag')},
-        showColorsVert: { glsl: glslify(ASSETS_DIR + '/glsl/ShowColors.vert')},
-        showColorsFrag: { glsl: glslify(ASSETS_DIR + '/glsl/ShowColors.frag')},
+        texturedVert: { glsl: glslify(__dirname + '/../assets/glsl/Textured.vert')},
+        texturedFrag: { glsl: glslify(__dirname + '/../assets/glsl/Textured.frag')},
+        showTexCoordsVert: { glsl: glslify(__dirname + '/../assets/glsl/ShowTexCoords.vert')},
+        showTexCoordsFrag: { glsl: glslify(__dirname + '/../assets/glsl/ShowTexCoords.frag')},
+        showColorsVert: { glsl: glslify(__dirname + '/../assets/glsl/ShowColors.vert')},
+        showColorsFrag: { glsl: glslify(__dirname + '/../assets/glsl/ShowColors.frag')},
         envMap_px: { image: ASSETS_DIR + '/cubemaps/pisa_posx.jpg' },
         envMap_nx: { image: ASSETS_DIR + '/cubemaps/pisa_negx.jpg' },
         envMap_py: { image: ASSETS_DIR + '/cubemaps/pisa_posy.jpg' },
@@ -77,10 +73,10 @@ Window.create({
         envMap_nz: { image: ASSETS_DIR + '/cubemaps/pisa_negz.jpg' },
         pisaPreview: { image: ASSETS_DIR + '/cubemaps/pisa_preview.jpg' },
         var: { image: ASSETS_DIR + '/textures/var.png' },
-        skyboxCubemapVert: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxCubemap.vert')},
-        skyboxCubemapFrag: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxCubemap.frag')},
-        skyboxEnvMapVert: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxEnvMap.vert')},
-        skyboxEnvMapFrag: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxEnvMap.frag')},
+        skyboxCubemapVert: { glsl: glslify(__dirname + '/../assets/glsl/SkyboxCubemap.vert')},
+        skyboxCubemapFrag: { glsl: glslify(__dirname + '/../assets/glsl/SkyboxCubemap.frag')},
+        skyboxEnvMapVert: { glsl: glslify(__dirname + '/../assets/glsl/SkyboxEnvMap.vert')},
+        skyboxEnvMapFrag: { glsl: glslify(__dirname + '/../assets/glsl/SkyboxEnvMap.frag')},
     },
     init: function() {
         var ctx = this.getContext();
