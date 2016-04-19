@@ -1,5 +1,3 @@
-//Ported from https://github.com/glo-js/glo-demo-primitive
-
 var Window      = require('pex-sys/Window');
 var Mat4        = require('pex-math/Mat4');
 var Vec3        = require('pex-math/Vec3');
@@ -14,7 +12,7 @@ var Draw        = require('pex-draw');
 var GUI         = require('pex-gui');
 var isBrowser   = require('is-browser');
 
-var CUBEMAP_SIZE = 512;
+var CUBEMAP_SIZE = 128; //->128 -> 64 -> 32 -> 16
 
 Window.create({
     settings: {
@@ -24,8 +22,8 @@ Window.create({
         fullscreen: isBrowser
     },
     resources: {
-        reflectionVert: { glsl: glslify(__dirname + '/../assets/glsl/CubemapReflection.vert') },
-        reflectionFrag: { glsl: glslify(__dirname + '/../assets/glsl/CubemapReflection.frag') },
+        reflectionVert: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionCubemap.vert') },
+        reflectionFrag: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionCubemap.frag') },
         solidColorVert: { glsl: glslify(__dirname + '/../assets/glsl/SolidColor.vert') },
         solidColorFrag: { glsl: glslify(__dirname + '/../assets/glsl/SolidColor.frag') },
         showColorsVert: { glsl: glslify(__dirname + '/../assets/glsl/ShowColors.vert') },
@@ -36,9 +34,10 @@ Window.create({
 
         this.gui = new GUI(ctx, this.getWidth(), this.getHeight());
         this.addEventListener(this.gui);
+        this.gui.addHeader('Preview');
 
         this.camera  = new PerspCamera(45,this.getAspectRatio(),0.001,20.0);
-        this.camera.lookAt([5,5,5],[0,0,0]);
+        this.camera.lookAt([2,4,-7],[0,0,0]);
 
         this.arcball = new Arcball(this.camera,this.getWidth(),this.getHeight());
         this.addEventListener(this.arcball);
@@ -52,6 +51,7 @@ Window.create({
         this.reflectionProgram = ctx.createProgram(res.reflectionVert, res.reflectionFrag);
         ctx.bindProgram(this.reflectionProgram);
         this.reflectionProgram.setUniform('uReflectionMap', 0);
+        this.reflectionProgram.setUniform('uReflectionMapFlipEnvMap', 1);
 
         this.solidColorProgram = ctx.createProgram(res.solidColorVert, res.solidColorFrag);
         this.showColorsProgram = ctx.createProgram(res.showColorsVert, res.showColorsFrag);
@@ -78,14 +78,17 @@ Window.create({
         this.cubeInstances = [
             { position: [ 3, 0, 0], scale: 1.0, color: [1.0, 0.0, 0.0, 1.0]},
             { position: [-3, 0, 0], scale: 1.0, color: [1.0, 0.5, 0.0, 1.0]},
-            { position: [ 0, 3, 0], scale: 1.0, color: [0.0, 1.0, 0.0, 1.0]},
-            { position: [ 0,-3, 0], scale: 0.5, color: [0.0, 1.0, 0.5, 1.0]},
+            { position: [ 0, 3, 0], scale: 1.0, color: [0.0, 0.8, 0.0, 1.0]},
+            { position: [ 0,-3, 0], scale: 0.5, color: [0.0, 0.8, 0.8, 1.0]},
             { position: [ 0, 0, 3], scale: 0.5, color: [0.0, 0.0, 1.0, 1.0]},
             { position: [ 0, 0,-3], scale: 0.5, color: [0.5, 0.0, 1.0, 1.0]}
         ];
 
-        this.reflectionMap = ctx.createTextureCube(null, CUBEMAP_SIZE, CUBEMAP_SIZE);
+        this.reflectionMap = ctx.createTextureCube(null, CUBEMAP_SIZE, CUBEMAP_SIZE, { flipEnvMap: 1 });
+
         this.fbo = ctx.createFramebuffer();
+
+        this.gui.addTextureCube('Reflection', this.reflectionMap);
 
         this.cubeMapProjection = Mat4.perspective(Mat4.create(), 45, 1, 0.001, 50.0);
         this.cubeMapView = Mat4.lookAt([], [0, 0, 0], [1, 0, 0], [0, 1, 0]);
@@ -98,18 +101,19 @@ Window.create({
         var sides = [
             { bg: [1.0, 0.0, 0.0, 1.0], bg: [1.0/10, 0.0/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [ 1, 0, 0], up: [0, 1, 0] },
             { bg: [1.0, 0.5, 0.0, 1.0], bg: [1.0/10, 0.5/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [-1, 0, 0], up: [0, 1, 0] },
-            { bg: [0.0, 1.0, 0.0, 1.0], bg: [0.0/10, 1.0/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [0,  1, 0], up: [0, 0, 1] },
-            { bg: [0.0, 1.0, 0.5, 1.0], bg: [0.0/10, 1.0/10, 0.5/10, 1.0], eye: [0, 0, 0], target: [0, -1, 0], up: [0, 0, 1] },
+            { bg: [0.0, 0.8, 0.0, 1.0], bg: [0.0/10, 0.8/10, 0.0/10, 1.0], eye: [0, 0, 0], target: [0,  1, 0], up: [0, 0, 1] },
+            { bg: [0.0, 0.8, 0.8, 1.0], bg: [0.0/10, 0.8/10, 0.8/10, 1.0], eye: [0, 0, 0], target: [0, -1, 0], up: [0, 0, 1] },
             { bg: [0.0, 0.0, 1.0, 1.0], bg: [0.0/10, 0.0/10, 1.0/10, 1.0], eye: [0, 0, 0], target: [0, 0,  1], up: [0, 1, 0] },
             { bg: [0.5, 0.0, 1.0, 1.0], bg: [0.5/10, 0.0/10, 1.0/10, 1.0], eye: [0, 0, 0], target: [0, 0, -1], up: [0, 1, 0] },
         ]
 
         var gl = ctx.getGL();
 
-        ctx.pushState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT);
+        ctx.pushState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT | ctx.MATRIX_MODEL_BIT);
         ctx.setViewport(0, 0, CUBEMAP_SIZE, CUBEMAP_SIZE);
         ctx.bindFramebuffer(this.fbo);
         ctx.setProjectionMatrix(this.cubeMapProjection);
+        //We need to mirror the scene to match Left-Handed coordinate system of the cubemap
         sides.forEach(function(side, sideIndex) {
             this.fbo.setColorAttachment(0, ctx.TEXTURE_CUBE_MAP_POSITIVE_X + sideIndex, this.reflectionMap.getHandle(), 0);
             ctx.setClearColor(side.bg[0], side.bg[1], side.bg[2], side.bg[3]);
@@ -118,7 +122,7 @@ Window.create({
             ctx.setViewMatrix(this.cubeMapView);
             this.drawScene();
         }.bind(this))
-        ctx.popState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT);
+        ctx.popState(ctx.VIEWPORT_BIT | ctx.FRAMEBUFFER_BIT | ctx.MATRIX_PROJECTION_BIT | ctx.MATRIX_VIEW_BIT | ctx.MATRIX_MODEL_BIT);
     },
     drawScene: function() {
         var ctx = this.getContext();
@@ -164,5 +168,7 @@ Window.create({
 
         ctx.bindProgram(this.showColorsProgram);
         this.debugDraw.drawPivotAxes(2);
+
+        this.gui.draw();
     }
 })
