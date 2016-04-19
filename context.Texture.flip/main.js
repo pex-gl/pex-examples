@@ -5,6 +5,7 @@ var isBrowser = require('is-browser');
 var PerspCamera = require('pex-cam/PerspCamera');
 var Arcball = require('pex-cam/Arcball');
 var glslify = require('glslify-promise');
+var createSphere = require('primitive-sphere');
 var Draw = require('pex-draw');
 var GUI = require('pex-gui');
 
@@ -17,12 +18,12 @@ if (isBrowser) {
 
 //Flipping up by -1 inspired by http://www.mbroecker.com/project_dynamic_cubemaps.html
 var sides = [
-    { eye: [0, 0, 0], target: [ 1, 0, 0], up: [0, -1, 0], color: [1, 0, 0, 1] },
-    { eye: [0, 0, 0], target: [-1, 0, 0], up: [0, -1, 0], color: [0, 0, 0, 1] },
-    { eye: [0, 0, 0], target: [0,  1, 0], up: [0, 0, 1], color: [0, 0, 0, 1] },
-    { eye: [0, 0, 0], target: [0, -1, 0], up: [0, 0, -1], color: [0, 0, 0, 1] },
-    { eye: [0, 0, 0], target: [0, 0,  1], up: [0, -1, 0], color: [0, 0, 0, 1] },
-    { eye: [0, 0, 0], target: [0, 0, -1], up: [0, -1, 0], color: [0, 0, 0, 1] },
+    { eye: [0, 0, 0], target: [ 1, 0, 0], up: [0, -1,  0], color: [0, 0, 0, 1] },
+    { eye: [0, 0, 0], target: [-1, 0, 0], up: [0, -1,  0], color: [0, 0, 0, 1] },
+    { eye: [0, 0, 0], target: [0,  1, 0], up: [0,  0,  1], color: [0, 0, 0, 1] },
+    { eye: [0, 0, 0], target: [0, -1, 0], up: [0,  0, -1], color: [0, 0, 0, 1] },
+    { eye: [0, 0, 0], target: [0, 0,  1], up: [0, -1,  0], color: [0, 0, 0, 1] },
+    { eye: [0, 0, 0], target: [0, 0, -1], up: [0, -1,  0], color: [0, 0, 0, 1] },
 ];
 
 var fbo = null;
@@ -33,7 +34,7 @@ function renderToCubemap(ctx, cubemap, drawScene, level) {
     level = level || 0;
     if (!fbo) {
         fbo = ctx.createFramebuffer();
-        projectionMatrix = Mat4.perspective(Mat4.create(), 90, 1, 0.001, 50.0);
+        projectionMatrix = Mat4.perspective(Mat4.create(), 90, 1, 0.001, 500.0);
         viewMatrix = Mat4.create();
     }
 
@@ -41,7 +42,6 @@ function renderToCubemap(ctx, cubemap, drawScene, level) {
     ctx.setViewport(0, 0, cubemap.getWidth(), cubemap.getHeight());
     ctx.bindFramebuffer(fbo);
     ctx.setProjectionMatrix(projectionMatrix);
-    ctx.scale([-1, 1, 1]);
     sides.forEach(function(side, sideIndex) {
         fbo.setColorAttachment(0, ctx.TEXTURE_CUBE_MAP_POSITIVE_X + sideIndex, cubemap.getHandle(), level);
         ctx.setClearColor(side.color[0], side.color[1], side.color[2], 1);
@@ -59,6 +59,10 @@ Window.create({
         height: 900
     },
     resources: {
+        reflectionCubemapVert: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionCubemap.vert') },
+        reflectionCubemapFrag: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionCubemap.frag') },
+        reflectionEquirectVert: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionEquirect.vert') },
+        reflectionEquirectFrag: { glsl: glslify(__dirname + '/../assets/glsl/ReflectionEquirect.frag') },
         texturedVert: { glsl: glslify(ASSETS_DIR + '/glsl/Textured.vert')},
         texturedFrag: { glsl: glslify(ASSETS_DIR + '/glsl/Textured.frag')},
         showTexCoordsVert: { glsl: glslify(ASSETS_DIR + '/glsl/ShowTexCoords.vert')},
@@ -73,8 +77,8 @@ Window.create({
         envMap_nz: { image: ASSETS_DIR + '/cubemaps/pisa_negz.jpg' },
         pisaPreview: { image: ASSETS_DIR + '/cubemaps/pisa_preview.jpg' },
         var: { image: ASSETS_DIR + '/textures/var.png' },
-        skyboxVert: { glsl: glslify(ASSETS_DIR + '/glsl/Skybox.vert')},
-        skyboxFrag: { glsl: glslify(ASSETS_DIR + '/glsl/Skybox.frag')},
+        skyboxCubemapVert: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxCubemap.vert')},
+        skyboxCubemapFrag: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxCubemap.frag')},
         skyboxEnvMapVert: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxEnvMap.vert')},
         skyboxEnvMapFrag: { glsl: glslify(ASSETS_DIR + '/glsl/SkyboxEnvMap.frag')},
     },
@@ -90,6 +94,15 @@ Window.create({
             { location: ctx.ATTRIB_TEX_COORD_0, data: texCoords}
         ], { data: faces });
 
+        var sphere = createSphere(0.5);
+        var sphereAttributes = [
+            { data: sphere.positions, location: ctx.ATTRIB_POSITION },
+            { data: sphere.uvs, location: ctx.ATTRIB_TEX_COORD_0 },
+            { data: sphere.normals, location: ctx.ATTRIB_NORMAL }
+        ];
+        var sphereIndices = { data: sphere.cells };
+        this.sphereMesh = ctx.createMesh(sphereAttributes, sphereIndices);
+
         var res = this.getResources();
         this.pisaTex = ctx.createTexture2D(res.envMap_pz)
         this.pisaPreviewTex = ctx.createTexture2D(res.pisaPreview)
@@ -103,17 +116,22 @@ Window.create({
             { face: 5, data: res.envMap_nz }
         ])
 
-        this.liveEnvMap = ctx.createTextureCube(null, 512, 512);
+        this.liveEnvMap = ctx.createTextureCube(null, 512, 512, { flipEnvMap: 1 });
 
         this.texturedProgram = ctx.createProgram(res.texturedVert, res.texturedFrag);
         this.showTexCoordsProgram = ctx.createProgram(res.showTexCoordsVert, res.showTexCoordsFrag);
         this.showColorsProgram = ctx.createProgram(res.showColorsVert, res.showColorsFrag);
-        this.skyboxProgram = ctx.createProgram(res.skyboxVert, res.skyboxFrag);
+        this.skyboxCubemapProgram = ctx.createProgram(res.skyboxCubemapVert, res.skyboxCubemapFrag);
         this.skyboxEnvMapProgram = ctx.createProgram(res.skyboxEnvMapVert, res.skyboxEnvMapFrag);
+        this.reflectionCubemap = ctx.createProgram(res.reflectionCubemapVert, res.reflectionCubemapFrag);
+        this.reflectionEquirect = ctx.createProgram(res.reflectionEquirectVert, res.reflectionEquirectFrag);
 
         this.camera = new PerspCamera(45, 1, 0.1, 100);
+        this.camera.setPosition([0, 0, -5])
         this.arcball = new Arcball(this.camera, this.getWidth(), this.getHeight());
         this.addEventListener(this.arcball);
+
+        this.frontCamera = new PerspCamera(45, 1, 0.1, 100);
 
         this.debugDraw = new Draw(ctx);
 
@@ -121,7 +139,8 @@ Window.create({
         ctx.setProjectionMatrix(this.camera.getProjectionMatrix());
 
         this.fboTex = ctx.createTexture2D(null, 512, 512);
-        this.fbo = ctx.createFramebuffer([{ texture: this.fboTex }]);
+        this.fboDepthTex = ctx.createTexture2D(null, 512, 512, { magFilter: ctx.NEAREST, minFilter: ctx.NEAREST, format: ctx.DEPTH_COMPONENT, type: ctx.UNSIGNED_SHORT });
+        this.fbo = ctx.createFramebuffer([{ texture: this.fboTex }], { texture: this.fboDepthTex });
 
         var w = this.getWidth();
         var h = this.getHeight();
@@ -157,19 +176,19 @@ Window.create({
         ctx.pushModelMatrix();
         this.debugDraw.setColor([1,0,0,1]);
         ctx.translate([2, 0, 0]);
-        this.debugDraw.drawCube();
+        this.debugDraw.drawCube(0.75);
         ctx.popModelMatrix();
 
         ctx.pushModelMatrix();
         this.debugDraw.setColor([0,1,0,1]);
         ctx.translate([0, 2, 0]);
-        this.debugDraw.drawCube();
+        this.debugDraw.drawCube(0.75);
         ctx.popModelMatrix();
 
         ctx.pushModelMatrix();
         this.debugDraw.setColor([0,0,1,1]);
         ctx.translate([0, 0, 2]);
-        this.debugDraw.drawCube();
+        this.debugDraw.drawCube(0.75);
         ctx.popModelMatrix();
     },
     drawSceneWithSkybox: function() {
@@ -179,12 +198,12 @@ Window.create({
         ctx.bindTexture(this.varTex);
         ctx.setLineWidth(5);
 
-        ctx.bindProgram(this.skyboxProgram);
-        this.skyboxProgram.setUniform('uReflectionMap', 0);
+        ctx.bindProgram(this.skyboxCubemapProgram);
+        this.skyboxCubemapProgram.setUniform('uReflectionMap', 0);
         ctx.bindTexture(this.envMap, 0);
         ctx.pushModelMatrix();
         this.debugDraw.setColor([1,1,1,1]);
-        this.debugDraw.drawCube(10);
+        this.debugDraw.drawCube(100);
         this.debugDraw.drawPivotAxes(1);
         ctx.popModelMatrix();
 
@@ -193,19 +212,19 @@ Window.create({
         ctx.pushModelMatrix();
         this.debugDraw.setColor([0.8,0,0,1]);
         ctx.translate([2, 0, 0]);
-        this.debugDraw.drawCube();
+        this.debugDraw.drawCube(0.75);
         ctx.popModelMatrix();
 
         ctx.pushModelMatrix();
         this.debugDraw.setColor([0,0.8,0,1]);
         ctx.translate([0, 2, 0]);
-        this.debugDraw.drawCube(1);
+        this.debugDraw.drawCube(0.75);
         ctx.popModelMatrix();
 
         ctx.pushModelMatrix();
         this.debugDraw.setColor([0,0,0.8,1]);
         ctx.translate([0, 0, 2]);
-        this.debugDraw.drawCube();
+        this.debugDraw.drawCube(0.75);
         ctx.popModelMatrix();
     },
     draw: function() {
@@ -223,7 +242,10 @@ Window.create({
         ctx.bindProgram(this.showTexCoordsProgram);
         ctx.setViewport(w*1/4, h*2/3, w/4, h/3);
         ctx.bindMesh(this.plane);
+        ctx.pushViewMatrix();
+        ctx.setViewMatrix(this.frontCamera.getViewMatrix())
         ctx.drawMesh();
+        ctx.popViewMatrix();
 
         ctx.bindProgram(this.texturedProgram);
         this.texturedProgram.setUniform('uTexture', 0);
@@ -231,12 +253,18 @@ Window.create({
         ctx.setViewport(w*2/4, h*2/3, w/4, h/3);
         ctx.bindTexture(this.varTex);
         ctx.bindMesh(this.plane);
+        ctx.pushViewMatrix();
+        ctx.setViewMatrix(this.frontCamera.getViewMatrix())
         ctx.drawMesh();
+        ctx.popViewMatrix();
 
         ctx.setViewport(w*2/4, h*1/3, w/4, h/3);
         ctx.bindTexture(this.pisaTex);
         ctx.bindMesh(this.plane);
+        ctx.pushViewMatrix();
+        ctx.setViewMatrix(this.frontCamera.getViewMatrix())
         ctx.drawMesh();
+        ctx.popViewMatrix();
 
         ctx.bindFramebuffer(this.fbo);
         ctx.setViewport(0, 0, this.fboTex.getWidth(), this.fboTex.getHeight());
@@ -249,33 +277,61 @@ Window.create({
         this.texturedProgram.setUniform('uTexture', 0);
         ctx.bindTexture(this.fboTex);
         ctx.bindMesh(this.plane);
+        ctx.pushViewMatrix();
+        ctx.setViewMatrix(this.frontCamera.getViewMatrix())
         ctx.drawMesh();
+        ctx.popViewMatrix();
 
         ctx.setViewport(w*3/4, h*2/3, w/4, h/3);
         ctx.bindProgram(this.skyboxEnvMapProgram);
         this.skyboxEnvMapProgram.setUniform('uReflectionEnvMap', 0);
         ctx.bindTexture(this.pisaPreviewTex);
-        this.debugDraw.drawCube(10);
+        this.debugDraw.drawCube(100);
         ctx.bindProgram(this.showColorsProgram);
         this.debugDraw.drawPivotAxes();
+        ctx.bindProgram(this.reflectionEquirect);
+        this.reflectionEquirect.setUniform('uReflectionMap', 0);
+        ctx.bindMesh(this.sphereMesh);
+        ctx.drawMesh();
 
         ctx.setViewport(w*3/4, h/3, w/4, h/3);
-        ctx.bindProgram(this.skyboxProgram);
-        this.skyboxProgram.setUniform('uReflectionMap', 0);
+        ctx.bindProgram(this.skyboxCubemapProgram);
+        this.skyboxCubemapProgram.setUniform('uReflectionMap', 0);
+        this.skyboxCubemapProgram.setUniform('uReflectionMapFlipEnvMap', -1);
         ctx.bindTexture(this.envMap);
-        this.debugDraw.drawCube(10);
+        this.debugDraw.drawCube(100);
         ctx.bindProgram(this.showColorsProgram);
         this.debugDraw.drawPivotAxes();
+        ctx.bindProgram(this.reflectionCubemap);
+        this.reflectionCubemap.setUniform('uReflectionMap', 0);
+        this.reflectionCubemap.setUniform('uReflectionMapFlipEnvMap', -1);
+        ctx.bindMesh(this.sphereMesh);
+        ctx.drawMesh();
 
         renderToCubemap(ctx, this.liveEnvMap, this.drawSceneWithSkybox.bind(this), 0);
 
         ctx.setViewport(w*3/4, 0, w/4, h/3);
-        ctx.bindProgram(this.skyboxProgram);
-        this.skyboxProgram.setUniform('uReflectionMap', 0);
-        ctx.bindTexture(this.liveEnvMap);
-        this.debugDraw.drawCube(10);
+        ctx.setScissor(w*3/4, 0, w/4, h/3)
+        ctx.setScissorTest(true)
+        var renderRealScene = true;
+        if (renderRealScene) {
+            this.drawSceneWithSkybox()
+        }
+        else {
+            ctx.bindTexture(this.liveEnvMap);
+            ctx.bindProgram(this.skyboxCubemapProgram);
+            this.skyboxCubemapProgram.setUniform('uReflectionMap', 0);
+            this.skyboxCubemapProgram.setUniform('uReflectionMapFlipEnvMap', 1);
+            this.debugDraw.drawCube(100);
+        }
         ctx.bindProgram(this.showColorsProgram);
         this.debugDraw.drawPivotAxes();
+        ctx.bindProgram(this.reflectionCubemap);
+        this.reflectionCubemap.setUniform('uReflectionMap', 0);
+        this.reflectionCubemap.setUniform('uReflectionMapFlipEnvMap', 1);
+        ctx.bindMesh(this.sphereMesh);
+        ctx.drawMesh();
+        ctx.setScissorTest(false)
 
         //TODO:
         //envmap panorama
