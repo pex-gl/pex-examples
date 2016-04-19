@@ -1,11 +1,11 @@
-//Ported from https://github.com/glo-js/glo-demo-primitive
-
 var Window      = require('pex-sys/Window');
 var Mat4        = require('pex-math/Mat4');
 var Vec3        = require('pex-math/Vec3');
 var createTorus = require('primitive-torus');
 var glslify     = require('glslify-promise');
 var isBrowser   = require('is-browser');
+
+var ASSETS_DIR = isBrowser ? '../assets' :  __dirname + '/../assets';
 
 Window.create({
     settings: {
@@ -14,8 +14,8 @@ Window.create({
         fullScreen: isBrowser
     },
     resources: {
-        vert: { glsl: glslify(__dirname + '/../assets/glsl/RepeatedTexture.vert') },
-        frag: { glsl: glslify(__dirname + '/../assets/glsl/RepeatedTexture.frag') }
+        vert: { text: (ASSETS_DIR + '/glsl/RepeatedTexture.vert') },
+        frag: { text: (ASSETS_DIR + '/glsl/RepeatedTexture.frag') }
     },
     init: function() {
         var ctx = this.getContext();
